@@ -1,10 +1,44 @@
-function Navbar() {
+import { useState } from "react";
+
+function Navigation () {
+  return ( 
+    <ul className="nav-ul">
+      <li className="nav-li">
+        <a href="/" className="nav-link">Home</a>
+      </li>
+      <li className="nav-li">
+        <a href="#work" className="nav-link">Work</a>
+      </li>
+      <li className="nav-li">
+        <a href="#about" className="nav-link">About</a>
+      </li>
+      <li className="nav-li">
+        <a href="#contact" className="nav-link">Contact</a>
+      </li>
+    </ul>
+  )
+}
+
+function Navbar () {
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="fixed inset-x-0 z-20 w-full backdrop-blur-lg bg-zinc-900/20">
+    <div className="fixed inset-x-0 z-20 w-full backdrop-blur-lg bg-black/40">
       <div className="mx-auto c-space max-w-7xl">
         <div className="flex items-center justify-between p-2 md:p-0">
-          <a className="text-xl font-bold transition-colors text-neutral-400 hover:text-white">flex</a>
-
+          <a 
+          href="./"
+          className="text-xl font-bold transition-colors text-neutral-500 hover:text-black">
+          Feliks
+          </a>
+          <button onClick={() => setIsOpen(!isOpen)}
+            className="flex coursor-pointer text-neutral-500 hover:text-black focus:outline-none sm:hidden">
+            <img src={isOpen ? "assets/close.svg" : "assets/menu.svg"} 
+            alt="toggle" 
+            className="w-6 h-6"/>
+          </button>
+          <nav className="hidden sm:flex">
+            <Navigation />
+          </nav>
         </div>
       </div>
     </div>
