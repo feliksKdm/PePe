@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "motion/react";
 
 function Navigation () {
   return ( 
@@ -22,16 +23,16 @@ function Navigation () {
 function Navbar () {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="fixed inset-x-0 z-20 w-full backdrop-blur-lg bg-black/40">
+    <div className="fixed inset-x-0 z-20 w-full backdrop-blur-lg">
       <div className="mx-auto c-space max-w-7xl">
         <div className="flex items-center justify-between p-2 md:p-0">
           <a 
           href="./"
-          className="text-xl font-bold transition-colors text-neutral-500 hover:text-black">
+          className="text-xl font-bold transition-colors text-neutral-500 hover:text-white">
           Feliks
           </a>
           <button onClick={() => setIsOpen(!isOpen)}
-            className="flex coursor-pointer text-neutral-500 hover:text-black focus:outline-none sm:hidden">
+            className="flex coursor-pointer text-neutral-500 hover:text-white focus:outline-none sm:hidden">
             <img src={isOpen ? "assets/close.svg" : "assets/menu.svg"} 
             alt="toggle" 
             className="w-6 h-6"/>
@@ -41,6 +42,13 @@ function Navbar () {
           </nav>
         </div>
       </div>
+      {isOpen && (<motion.div className="block overflow-hidden text-center sm:hidden"
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        style={{ maxHeight: "100vh" }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}>
+        <Navigation />
+      </motion.div>)}
     </div>
   )
 }
