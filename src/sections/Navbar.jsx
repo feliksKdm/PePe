@@ -23,12 +23,12 @@ function Navigation () {
 function Navbar () {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="fixed inset-x-0 z-20 w-full backdrop-blur-lg">
+    <div className="fixed inset-x-0 z-20 w-full backdrop-blur-lg bg-primary/40">
       <div className="mx-auto c-space max-w-7xl">
         <div className="flex items-center justify-between p-2 md:p-0">
           <a 
-          href="./"
-          className="text-xl font-bold transition-colors text-neutral-500 hover:text-white">
+          href="/"
+          className="text-xl font-bold transition-colors text-neutral-300 hover:text-white">
           Feliks
           </a>
           <button onClick={() => setIsOpen(!isOpen)}
