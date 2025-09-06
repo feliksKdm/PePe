@@ -1,5 +1,6 @@
 import { div } from "motion/react-client"
 import { FlipWords } from "../components/FlipWords"
+import { ParalaxBackground} from "../components/ParalaxBackground"
 
 function Hero () {
   return ( 
@@ -13,6 +14,7 @@ function Hero () {
           duration={2000}
           className="text-3xl font-bold text-neutral-300 p-3 md:text-6xl" 
         />
+      <ParalaxBackground />
       </div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
     </div>
   )
