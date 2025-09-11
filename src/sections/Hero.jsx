@@ -1,11 +1,12 @@
 import { div } from "motion/react-client"
 import { FlipWords } from "../components/FlipWords"
 import { ParalaxBackground } from "../components/ParalaxBackground"
+import { GirlSpace } from "../components/GirlSpace"
 
 function Hero () {
   return ( 
     
-    <div className="min-h-screen flex flex-col  items-center text-center c-space rounded-3xl z-100 pt-20 md:pt-40">
+    <section className="min-h-screen flex flex-col  items-center justify-center text-center c-space rounded-3xl z-100 pt-5 md:pt-10 ">
       <div className="z-10 text-white">
         <h1 className=" text-4xl font-bold mb-4 md:text-7xl">Hi, im Feliks</h1>
         <h2 
@@ -20,8 +21,19 @@ function Hero () {
         </div>
       </div>
       
-      <ParalaxBackground />                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-    </div>
+      <ParalaxBackground />    
+
+      <figure className="absolute inset-0"
+      style={{ width: "100vw", height: "100vh"}}
+      >
+
+        <Canvas>
+          <GirlSpace />
+        </Canvas>
+
+      </figure>
+
+    </section>
 
     
 

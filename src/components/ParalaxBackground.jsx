@@ -8,10 +8,25 @@ const ParalaxBackground = () => {
             
             <div 
             className='absolute inset-0 w-full h-screen -z-50'
-            style={{ backgroundImage: "url(/assets/sky.jpg", }}>
+            style={{ backgroundImage: "url(/assets/sky.jpg", 
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            }}></div>
 
-        </div>
-        
+            <div 
+            className='absolute inset-0 w-full h-screen -z-40'
+            style={{ backgroundImage: "url(/assets/planets.png", 
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            }}></div>
+
+            <div 
+            className='absolute inset-0 w-full h-screen -z-30'
+            style={{ backgroundImage: "url(/assets/mountain-3.png", 
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            }}></div>
+
         </div> 
         
 
