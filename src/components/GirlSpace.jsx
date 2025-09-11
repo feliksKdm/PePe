@@ -8,9 +8,18 @@ Title: Just a girl
 
 import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
+import { useAnimation } from 'motion/react'
 
 function GirlSpace(props) {
   const { nodes, materials } = useGLTF('/models/just_a_girl.glb')
+  const ref = useRef()
+  useAnimation(ref, {
+    initial: { scale: 0.8 },
+    animate: { scale: 1 },
+    transition: { duration: 1, ease: "easeInOut" }
+  })
+
+
   return (
     <group {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]}>
