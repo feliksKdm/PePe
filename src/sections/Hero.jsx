@@ -45,7 +45,7 @@ function Hero () {
           <FlipWords 
             words={["websites", "apps", "idk", "stuff :O", "I can do Big Data actually"]}
             duration={2400}
-            className="text-3xl font-bold  p-3 md:text-6xl " 
+            className="text-3xl font-bold md:text-6xl " 
           />
         </motion.div>
       </div>
