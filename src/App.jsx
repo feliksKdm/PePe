@@ -7,6 +7,7 @@ function App() {
     <div className='container mx-auto max-w-7xl'>
       <Navbar />
       <Hero />
+      <div className='min-h-screen'></div>
       {/*main section*/}
       {/*footer*/}
     </div>
