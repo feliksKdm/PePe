@@ -1,4 +1,5 @@
 import Card from "../components/Card"
+import {Globe} from "../components/Globe"
 import {useRef} from "react"
 
 function About() {
@@ -21,7 +22,7 @@ function About() {
                 </div>
             </div>
             {/* Grid 2 */}
-            <div className="flex items-end grid-default-color grid-2">
+            <div className="flex grid-default-color grid-2">
                 <div ref={grid2Container} className="flex items-center justify-center w-full h-full">
                     <p className="flex items-center text-5xl text-gray-500"> Front </p>
                     <Card
@@ -67,13 +68,20 @@ function About() {
                 </div>
             </div>
             {/* Grid 3 */}
-            <div className="flex items-end grid-black-color grid-3">
+            <div className="flex grid-black-color grid-3">
+                <div className="z-10 p-6">
+                    <p className="headtext">Time Zone</p>
+                    <p className="subtext"> I live in Jupiter, so I'm open to remote work worldwide. </p>
+                    <figure className="absolute left-[30%] top-[10%]">
+                        <Globe />
+                    </figure>
+                </div>
             </div>
             {/* Grid 4 */}
-            <div className="flex items-end grid-special-color grid-4">
+            <div className="flex grid-special-color grid-4">
             </div>
             {/* Grid 5 */}
-            <div className="flex items-end grid-default-color grid-5">
+            <div className="flex grid-default-color grid-5">
             </div>
         </div>
     </section>
