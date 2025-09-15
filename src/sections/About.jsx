@@ -71,8 +71,8 @@ function About() {
             <div className="flex grid-black-color grid-3">
                 <div className="z-10 p-6">
                     <p className="headtext">Time Zone</p>
-                    <p className="subtext"> I live in Jupiter, so I'm open to remote work worldwide. </p>
-                    <figure className="absolute left-[30%] top-[10%]">
+                    <p className="subtext w-[45%]"> I live in Jupiter, so I'm open to remote work worldwide. </p>
+                    <figure className="absolute left-[30%] top-[0%] -z-10 w-[300px] h-[300px] md:w-[400px] md:h-[400px] lg:w-[500px] lg:h-[500px]">
                         <Globe />
                     </figure>
                 </div>
