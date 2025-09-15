@@ -1,5 +1,6 @@
 import Card from "../components/Card"
 import {Globe} from "../components/Globe"
+import CopyEmailButton from "../components/CopyEmailButton";
 import {useRef} from "react"
 
 function About() {
@@ -79,6 +80,13 @@ function About() {
             </div>
             {/* Grid 4 */}
             <div className="flex grid-special-color grid-4">
+                <div className="flex flex-col items-center justify-center gap-4 size-full">
+                    <p className="text-center headtext">Do you want to start a project together</p>
+                    <CopyEmailButton />
+                </div>
+                <img 
+                src="assets/typing-pov.png" 
+                className="absolute scale-[1.75] -left-[5rem] -top-[1rem] md:scale-[3] md:right-50 md:inset-y-10 lg:scale-[2.5]"/>
             </div>
             {/* Grid 5 */}
             <div className="flex grid-default-color grid-5">

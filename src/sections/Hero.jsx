@@ -81,6 +81,11 @@ function Hero () {
           </Canvas>
       </figure>
 
+
+      <div className="absolute right-[0%] w-[30%] size-full  z-50">
+
+      </div>
+
     </section>
 
     
