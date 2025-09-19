@@ -19,7 +19,8 @@ function Hero () {
     visible: { opacity: 1, x: 0 },
   };
   return ( 
-    <section className="min-h-screen flex flex-col  items-center justify-start c-space md:items-start md:justify-start z-100 pt-20 md:pt-40 ">
+    <section className="min-h-screen flex flex-col  items-center justify-start c-space md:items-start md:justify-start z-100 pt-20 md:pt-40 "
+    id="home">
       <div className="z-10  text-white text-4xl font-bold [text-shadow:2px_2px_6px_rgba(0,0,0,0.4)]">
 
         <motion.h1 

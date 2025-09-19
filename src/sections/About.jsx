@@ -2,12 +2,14 @@ import Card from "../components/Card"
 import {Globe} from "../components/Globe"
 import CopyEmailButton from "../components/CopyEmailButton";
 import {useRef} from "react"
+import {Frameworks} from "../components/Frameworks";
 
 function About() {
     const grid2Container = useRef();
   return (
     <section 
-    className="c-space section-spacing">
+    className="c-space section-spacing"
+    id="about">
         <h2 className="text-heading">About Me</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mt-12 md:auto-rows-[18rem]">
@@ -81,7 +83,7 @@ function About() {
             {/* Grid 4 */}
             <div className="flex grid-special-color grid-4">
                 <div className="flex flex-col items-center justify-center gap-4 size-full">
-                    <p className="text-center headtext">Do you want to start a project together</p>
+                    <p className="text-center headtext">Do you want to start a project together?</p>
                     <CopyEmailButton />
                 </div>
                 <img 
@@ -90,6 +92,16 @@ function About() {
             </div>
             {/* Grid 5 */}
             <div className="flex grid-default-color grid-5">
+
+                <div className="z-10 w-[50%]">
+                    <p className="headtext">Tech Stack</p>
+                    <p className="subtext">I work with a variety of technologies, including JavaScript, React, Tailwind CSS, SQL, PostgreSQL, Python and more. I am always eager to learn new tools and frameworks to enhance my skill set and deliver the best solutions for my clients.</p>
+                </div>
+
+                <div className="absolute inset-y-0 md:inset-y-9 start-[50%] w-full h-full md:scale-125">
+                    <Frameworks />
+                </div>
+                
             </div>
         </div>
     </section>
