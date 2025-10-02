@@ -169,15 +169,13 @@ export const mySocials = [
 
 export const experiences = [
   {
-    title: "Software Developer",
-    job: "Security & Defense Projects",
+    title: "Data Scientist",
+    job: "Data Cleaning & Predictive Modeling",
     date: "2021-2023",
     contents: [
-      "Enhanced application security and developed new features, adhering to standards set by the Passive Defense Organization and National Cyberspace Center.",
-      "Designed and implemented intuitive map interfaces using MapsUI, enhancing user experience and enabling seamless interactive map integration.",
-      "Developed applications for industrial automation, leveraging C++ and the Fatek API for PLC communication.",
-      "Enhanced responsiveness and usability of applications using Windows Forms and WPF frameworks.",
-      "Executed XML to SVG conversions using X-DOM, ensuring dynamic and efficient data visualization.",
+      "Built an end-to-end supervised machine learning pipeline in Python using Pandas, NumPy, and scikit-learn.",
+      "Performed extensive data cleaning and preprocessing (handling missing values, feature engineering, encoding categorical variables), followed by training and evaluation of classification models to predict Titanic passenger survival.", 
+      "Demonstrated ability to transform raw data into actionable insights and deploy predictive models.",
     ],
   },
   {

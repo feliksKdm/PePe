@@ -3,9 +3,14 @@ import { experiences } from "../constants"
 
 const Expiriences = () => {
   return (
+
+    
     <div
     className="w-full"
-    > <Timeline data={experiences}/> </div>
+    id="work"
+    > <Timeline data={experiences}/> 
+    
+    </div>
   )
 }
 
