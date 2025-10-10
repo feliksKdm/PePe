@@ -4,6 +4,7 @@ import Hero from './sections/Hero'
 import About from './sections/About'
 import Projects from './sections/Projects'
 import Expiriences from './sections/Expiriences'
+import Contact from './sections/Contact'
 import Footer from './sections/Footer'
 
 function App() {
@@ -14,8 +15,8 @@ function App() {
       <About />
       <Projects />
       <Expiriences />
+      <Contact />
       <Footer />
-      <div className='min-h-screen'></div>
       {/*footer*/}
     </div>
   )
