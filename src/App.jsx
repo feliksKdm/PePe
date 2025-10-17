@@ -6,7 +6,7 @@ import Projects from './sections/Projects'
 import Expiriences from './sections/Expiriences'
 import Contact from './sections/Contact'
 import Footer from './sections/Footer'
-import HFUpscaleResilient from './sections/Ai'
+import GradioUpscaleEmbed from './sections/Ai'
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
       <Projects />
       <Expiriences />
       <Contact />
-      <HFUpscaleResilient />
+      <GradioUpscaleEmbed />
 
       <Footer />
       
