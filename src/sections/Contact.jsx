@@ -39,11 +39,11 @@ const Contact = () => {
     }, '6fGh6QQux7GvmHcqc')
     setIsLoading(false);
     setFormData({ name: "", email: "", message: "" });
-    showAlertMessage("success", "You message has been sent!");
+    showAlertMessage("success", "Your message has been sent!");
   } catch (error) {
     setIsLoading(false);
     console.log(error);
-    showAlertMessage("danger", "Somthing went wrong!");
+    showAlertMessage("danger", "Something went wrong!");
   }
   };
 
@@ -59,10 +59,10 @@ const Contact = () => {
       {showAlert && <Alert type={alertType} text={alertMessage} />}
       <div className="flex flex-col items-center justify-center max-w-md p-5 mx-auto border border-white/10 rounded-2xl bg-primary">
         <div className="flex flex-col items-start w-full gap-5 mb-10">
-          <h2 className="text-heading">Let's Talk</h2>
+          <h2 className="text-heading">Let&apos;s Talk</h2>
           <p className="font-normal text-neutral-400">
-            Whether you're loking to build a new website, improve your existing
-            platform, or bring a unique project to life, I'm here to help
+            Internship opportunities, a computer-vision problem, or an idea for
+            a tool I should build — my inbox is open.
           </p>
         </div>
         <form className="w-full" onSubmit={handleSubmit}>

@@ -1,5 +1,4 @@
-import { button, s } from 'motion/react-client'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import React from 'react'
 
 const CopyEmailButton = () => {

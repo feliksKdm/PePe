@@ -6,77 +6,34 @@ Source: https://sketchfab.com/3d-models/just-a-girl-b2359160a4f54e76b5ae427a55d9
 Title: Just a girl
 */
 
-import React, { useRef } from 'react'
+import { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
-import { useAnimation } from 'motion/react'
+import { useFrame } from '@react-three/fiber'
 
 function GirlSpace(props) {
   const { nodes, materials } = useGLTF('/models/just_a_girl.glb')
-  const ref = useRef()
-  useAnimation(ref, {
-    initial: { scale: 0.8 },
-    animate: { scale: 1 },
-    transition: { duration: 1, ease: "easeInOut" }
+  const group = useRef()
+
+  // Slow idle rotation on top of the <Float> drift
+  useFrame((state) => {
+    if (group.current) {
+      group.current.rotation.y =
+        (props.rotation?.[1] ?? 0) + Math.sin(state.clock.elapsedTime * 0.25) * 0.12
+    }
   })
 
-
   return (
-    <group {...props} dispose={null}>
+    <group ref={group} {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]}>
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_2.geometry}
-          material={materials.lambert5SG}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_3.geometry}
-          material={materials.lambert5SG}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_4.geometry}
-          material={materials.lambert5SG}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_5.geometry}
-          material={materials.lambert6SG}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_6.geometry}
-          material={materials.lambert6SG}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_7.geometry}
-          material={materials.lambert6SG}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_8.geometry}
-          material={materials.lambert6SG}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_9.geometry}
-          material={materials.lambert6SG}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_10.geometry}
-          material={materials.lambert7SG}
-        />
+        <mesh castShadow receiveShadow geometry={nodes.Object_2.geometry} material={materials.lambert5SG} />
+        <mesh castShadow receiveShadow geometry={nodes.Object_3.geometry} material={materials.lambert5SG} />
+        <mesh castShadow receiveShadow geometry={nodes.Object_4.geometry} material={materials.lambert5SG} />
+        <mesh castShadow receiveShadow geometry={nodes.Object_5.geometry} material={materials.lambert6SG} />
+        <mesh castShadow receiveShadow geometry={nodes.Object_6.geometry} material={materials.lambert6SG} />
+        <mesh castShadow receiveShadow geometry={nodes.Object_7.geometry} material={materials.lambert6SG} />
+        <mesh castShadow receiveShadow geometry={nodes.Object_8.geometry} material={materials.lambert6SG} />
+        <mesh castShadow receiveShadow geometry={nodes.Object_9.geometry} material={materials.lambert6SG} />
+        <mesh castShadow receiveShadow geometry={nodes.Object_10.geometry} material={materials.lambert7SG} />
       </group>
     </group>
   )
@@ -84,4 +41,4 @@ function GirlSpace(props) {
 
 useGLTF.preload('/models/just_a_girl.glb')
 
-export { GirlSpace };
+export { GirlSpace }

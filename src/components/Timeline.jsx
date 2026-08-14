@@ -28,9 +28,11 @@ export const Timeline = ({
     <div
       className="c-space section-spacing"
       ref={containerRef}>
-      <h2
-      className="text-heading"
-      >My work Expiriences</h2>
+      <h2 className="text-heading">Work Experience</h2>
+      <p className="subtext mt-3 max-w-xl">
+        The checkpoints so far — school, freelance, and the AI systems I build
+        on my own time.
+      </p>
       <div ref={ref} className="relative pb-20">
         {data.map((item, index) => (
           <div key={index} className="flex justify-start pt-10 md:pt-40 md:gap-10">
@@ -56,8 +58,8 @@ export const Timeline = ({
                 <h3>{item.title}</h3>
               </div>
               <div>
-                {item.contents.map((content, index) => (
-                  <p className="text-neutral-400 mb-3 font-normal">
+                {item.contents.map((content) => (
+                  <p key={content} className="text-neutral-400 mb-3 font-normal">
                     {content}
                   </p>
                 ))}

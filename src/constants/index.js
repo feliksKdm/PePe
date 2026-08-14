@@ -1,243 +1,186 @@
 export const myProjects = [
   {
     id: 1,
-    title: "E-commerce Platform",
+    title: "License Plate Recognition",
+    emoji: "🚗",
+    gradient: "from-cyan-500/30 via-indigo to-storm",
+    accent: "#33c2cc",
     description:
-      "Facilitates purchases from international websites like Amazon and eBay, allowing customers to shop from these sites and have products delivered domestically.",
+      "Real-time ANPR system: a fine-tuned YOLO detector finds plates in video, OpenCV rectifies the crops, and an OCR engine turns pixels into validated, queryable records.",
     subDescription: [
-      "Built a scalable application with ASP.NET Core MVC, integrating global platforms like Amazon for domestic delivery.",
-      "Implemented secure authentication and database management using ASP.NET Core Identity and Entity Framework Core.",
-      "Designed a responsive frontend with Tailwind CSS, enhancing user experience.",
-      "Added payment systems, localization, and product filtering for functionality improvements.",
+      "Fine-tuned a YOLO model to detect license plates in motion-blurred, low-light and skewed frames.",
+      "Built an OpenCV preprocessing stage — perspective correction, denoising, CLAHE contrast equalization — that moved accuracy more than any model swap.",
+      "Validated OCR output against plate-format rules with per-character confidence fusion.",
+      "Served the pipeline through a FastAPI service with structured, honest-confidence records.",
     ],
-    href: "",
-    logo: "",
-    image: "/assets/projects/accessories.jpg",
-    tags: [
-      {
-        id: 1,
-        name: "C#",
-        path: "/assets/logos/csharp.svg",
-      },
-      {
-        id: 2,
-        name: ".Net",
-        path: "/assets/logos/dotnet.svg",
-      },
-      {
-        id: 3,
-        name: "Ef Core",
-        path: "/assets/logos/efcore.png",
-      },
-      {
-        id: 4,
-        name: "TailwindCSS",
-        path: "/assets/logos/tailwindcss.svg",
-      },
-    ],
+    tags: ["Python", "PyTorch", "YOLO", "OpenCV", "OCR", "FastAPI"],
+    href: "https://github.com/feliksKdm/License_plate_recognition_US",
   },
   {
     id: 2,
-    title: "Authentication & Authorization System",
+    title: "Face Recognition API",
+    emoji: "🧑‍💻",
+    gradient: "from-royal/40 via-indigo to-storm",
+    accent: "#7a57db",
     description:
-      "A secure authentication and authorization system using Auth0 for seamless user management.",
+      "Face-recognition authentication as a clean, documented API — InsightFace embeddings, PostgreSQL vector search, and JWT sessions behind FastAPI.",
     subDescription: [
-      "Integrated Auth0 for authentication, supporting OAuth, JWT, and multi-factor authentication.",
-      "Implemented role-based access control (RBAC) for fine-grained user permissions.",
-      "Developed a React-based frontend with Tailwind CSS for a sleek user experience.",
-      "Connected to a secure SQLite database for user data storage.",
+      "Detect & align faces with InsightFace, embed into 512-d ArcFace vectors via ONNX Runtime.",
+      "Store embeddings in PostgreSQL and verify with cosine-similarity search close to the data.",
+      "Apply configurable decision thresholds and issue JWTs on success, with a full audit log.",
+      "Small deliberate surface — enroll, verify, revoke — fully typed and documented via OpenAPI.",
     ],
-    href: "",
-    logo: "",
-    image: "/assets/projects/auth-system.jpg",
-    tags: [
-      {
-        id: 1,
-        name: "Auth0",
-        path: "/assets/logos/auth0.svg",
-      },
-      {
-        id: 2,
-        name: "React",
-        path: "/assets/logos/react.svg",
-      },
-      {
-        id: 3,
-        name: "SQLite",
-        path: "/assets/logos/sqlite.svg",
-      },
-      {
-        id: 4,
-        name: "TailwindCSS",
-        path: "/assets/logos/tailwindcss.svg",
-      },
-    ],
+    tags: ["Python", "FastAPI", "InsightFace", "PostgreSQL", "JWT", "Docker"],
+    href: "https://github.com/feliksKdm",
   },
   {
     id: 3,
-    title: "Blazor Web App",
+    title: "Credit Card Fraud Detection",
+    emoji: "💳",
+    gradient: "from-coral/30 via-indigo to-storm",
+    accent: "#ea4884",
     description:
-      "A modern, interactive web application built with Blazor WebAssembly and .NET Core.",
+      "Supervised ML pipeline that flags fraudulent transactions in heavily imbalanced data — feature engineering, resampling and model evaluation done honestly.",
     subDescription: [
-      "Developed a fully interactive Single Page Application (SPA) using Blazor WebAssembly.",
-      "Implemented API interactions using .NET Core for a robust backend.",
-      "Designed responsive UI components with Tailwind CSS for an enhanced UX.",
-      "Integrated SQLite for efficient client-side database storage.",
+      "Explored and cleaned real anonymized transaction data with Pandas and NumPy.",
+      "Handled extreme class imbalance with resampling strategies instead of accuracy theater.",
+      "Trained and compared classification models in scikit-learn against a fixed test set.",
+      "Evaluated with precision/recall and ROC-AUC — the metrics that actually matter for fraud.",
     ],
-    href: "",
-    logo: "",
-    image: "/assets/projects/blazor-app.jpg",
-    tags: [
-      {
-        id: 1,
-        name: "Blazor",
-        path: "/assets/logos/blazor.svg",
-      },
-      {
-        id: 2,
-        name: ".NET Core",
-        path: "/assets/logos/dotnetcore.svg",
-      },
-      {
-        id: 3,
-        name: "SQLite",
-        path: "/assets/logos/sqlite.svg",
-      },
-      {
-        id: 4,
-        name: "TailwindCSS",
-        path: "/assets/logos/tailwindcss.svg",
-      },
-    ],
+    tags: ["Python", "scikit-learn", "Pandas", "NumPy", "Jupyter"],
+    href: "https://github.com/feliksKdm/CreditCard_FroudDetection",
   },
-
   {
-    id: 5,
-    title: "WordPress Custom Theme",
+    id: 4,
+    title: "Chemical Hazard Lot Priority",
+    emoji: "🧪",
+    gradient: "from-mint/25 via-indigo to-storm",
+    accent: "#57db96",
     description:
-      "A fully customizable WordPress theme optimized for performance and SEO.",
+      "Data-science competition project: predicting which chemical lots need priority hazard handling from tabular production data.",
     subDescription: [
-      "Developed a responsive WordPress theme using HTML5, CSS3, and JavaScript.",
-      "Integrated Tailwind CSS for modern styling and UI enhancements.",
-      "Optimized SEO and page speed using Vite.js for fast builds.",
-      "Implemented custom widgets and plugin compatibility for extended functionality.",
+      "Built the full tabular ML workflow — EDA, feature engineering, model training and submission.",
+      "Engineered domain features from lot metadata to boost signal in a noisy target.",
+      "Cross-validated models to keep the leaderboard score honest against overfitting.",
     ],
-    href: "",
-    logo: "",
-    image: "/assets/projects/wordpress-theme.jpg",
-    tags: [
-      {
-        id: 1,
-        name: "WordPress",
-        path: "/assets/logos/wordpress.svg",
-      },
-      {
-        id: 2,
-        name: "HTML5",
-        path: "/assets/logos/html5.svg",
-      },
-      {
-        id: 3,
-        name: "CSS3",
-        path: "/assets/logos/css3.svg",
-      },
-      {
-        id: 4,
-        name: "Vite.js",
-        path: "/assets/logos/vitejs.svg",
-      },
-    ],
-  }];
+    tags: ["Python", "Pandas", "scikit-learn", "Feature Engineering"],
+    href: "https://github.com/feliksKdm",
+  },
+];
 
 export const mySocials = [
   {
-    name: "WhatsApp",
-    href: "",
-    icon: "/assets/socials/whatsApp.svg",
+    name: "GitHub",
+    href: "https://github.com/feliksKdm",
+    icon: "/assets/logos/github.svg",
   },
   {
-    name: "Linkedin",
+    name: "LinkedIn",
     href: "https://www.linkedin.com/in/feliks-altymyshov-405146283/",
     icon: "/assets/socials/linkedIn.svg",
-  },
-  {
-    name: "Instagram",
-    href: "",
-    icon: "/assets/socials/instagram.svg",
   },
 ];
 
 export const experiences = [
   {
-    title: "Data Scientist",
-    job: "Data Cleaning & Predictive Modeling",
-    date: "2021-2023",
+    title: "Freelance & personal products",
+    job: "Full-Stack Developer",
+    date: "2021 — 2023",
     contents: [
-      "Built an end-to-end supervised machine learning pipeline in Python using Pandas, NumPy, and scikit-learn.",
-      "Performed extensive data cleaning and preprocessing (handling missing values, feature engineering, encoding categorical variables), followed by training and evaluation of classification models to predict Titanic passenger survival.", 
-      "Demonstrated ability to transform raw data into actionable insights and deploy predictive models.",
+      "Built web applications end to end — where I learned that shipping, deploying and maintaining software is a different sport from writing it.",
+      "Developed an e-commerce platform with product catalogs, payments and localization.",
+      "Implemented authentication and role-based access control (OAuth, JWT, MFA).",
+      "Delivered responsive frontends with React and Tailwind backed by SQL databases.",
     ],
   },
   {
-    title: "Back-End Developer",
-    job: "Car Manufacture",
-    date: "2023-2024",
+    title: "New York City",
+    job: "Computer Science Student",
+    date: "2023 — PRESENT",
     contents: [
-      "Engineered systems for large-scale data ingestion and analysis, ensuring efficient data processing and storage.",
-      "Developed back-end systems enabling vehicle-to-cloud communication for telemetry, diagnostics, and remote control:",
-      "✅ Implemented secure APIs, following ISO 26262 automotive safety standards.",
-      "✅ Ensured data privacy for customers and partners through industry-compliant protocols.",
-      "✅ Delivered remote features like over-the-air updates, real-time tracking, and remote start capabilities.",
+      "International student studying CS in NYC — data structures, algorithms, and the math underneath machine learning.",
+      "Coursework: data structures & algorithms, databases (SQL), linear algebra and statistics for ML.",
+      "Self-directed track alongside classes: deep learning, computer vision, system design and distributed-systems fundamentals.",
+    ],
+  },
+  {
+    title: "Independent projects",
+    job: "AI / ML Engineer",
+    date: "2024 — PRESENT",
+    contents: [
+      "Designing and shipping end-to-end computer-vision systems — from dataset curation and model fine-tuning to the APIs that serve them.",
+      "Built a real-time license-plate recognition pipeline: YOLO detection, OpenCV rectification, OCR with confidence fusion.",
+      "Built a face-recognition authentication service on InsightFace embeddings with PostgreSQL vector search.",
+      "Adopted an evaluation-first workflow: fixed test sets, one-command scoring, honest metrics.",
     ],
   },
 ];
-export const reviews = [
+
+// ---------------------------------------------------------------------------
+// The Lab — AI tools. Add a new entry here and it appears on /tools
+// automatically. type: "gradio" embeds a Hugging Face Space; "soon" renders
+// a roadmap page until you ship it (then switch the type and add src).
+// ---------------------------------------------------------------------------
+export const tools = [
   {
-    name: "Jack",
-    username: "@jack",
-    body: "I've never seen anything like this before. It's amazing. I love it.",
-    img: "https://robohash.org/jack",
+    slug: "image-upscaler",
+    name: "Image Upscaler",
+    emoji: "🖼️",
+    status: "live",
+    type: "gradio",
+    src: "https://nick088-real-esrgan-pytorch.hf.space",
+    tagline: "Upscale low-resolution images with Real-ESRGAN.",
+    description:
+      "Drop in a blurry or low-res image and get a sharper, upscaled version back. Runs Real-ESRGAN (PyTorch) on a Hugging Face Space — free to use, right in the browser.",
+    tags: ["Computer Vision", "Real-ESRGAN", "PyTorch"],
   },
   {
-    name: "Jill",
-    username: "@jill",
-    body: "I don't know what to say. I'm speechless. This is amazing.",
-    img: "https://robohash.org/jill",
+    slug: "voice-lab",
+    name: "Voice Lab",
+    emoji: "🎭",
+    status: "live",
+    type: "gradio",
+    // Свой Space: https://huggingface.co/spaces/feliksKdm/voice-lab (ZeroGPU)
+    src: "https://feliksKdm-voice-lab.hf.space",
+    embedHeight: 1100,
+    tagline: "Hear my cloned voice, or clone your own — CosyVoice 3.",
+    description:
+      "Zero-shot voice cloning and style control on Fun-CosyVoice3-0.5B (Apache-2.0). My own voice is preloaded — type any text and hear me say it in one click, or drop in a 10-second clip to clone a different voice. Supports cross-lingual synthesis in 9 languages and natural-language style instructions. Runs on Hugging Face ZeroGPU.",
+    notice:
+      "Only clone your own voice or a voice you have explicit permission to use. Generated audio is synthetic and must not be used to impersonate anyone.",
+    tags: ["Voice Cloning", "CosyVoice 3", "ZeroGPU", "Multilingual"],
   },
   {
-    name: "John",
-    username: "@john",
-    body: "I'm at a loss for words. This is amazing. I love it.",
-    img: "https://robohash.org/john",
+    slug: "video-transcriber",
+    name: "Video Transcriber",
+    emoji: "🎙️",
+    status: "soon",
+    type: "soon",
+    tagline: "Turn any video or audio into accurate, timestamped text.",
+    description:
+      "Upload a video or audio file and get a clean transcript with timestamps — built on Whisper-class speech recognition. Currently in development.",
+    tags: ["Speech-to-Text", "Whisper", "Audio"],
   },
   {
-    name: "Alice",
-    username: "@alice",
-    body: "This is hands down the best thing I've experienced. Highly recommend!",
-    img: "https://robohash.org/alice",
+    slug: "text-to-speech",
+    name: "Text to Speech",
+    emoji: "🔊",
+    status: "live",
+    type: "custom",
+    tagline: "Turn text into speech — instantly, in your browser.",
+    description:
+      "Type or paste up to 5,000 characters and hear them spoken. Pick from every voice installed on your device, tune speed, pitch and volume, and follow along with live word highlighting. Runs 100% in your browser via the Web Speech API — nothing is uploaded, and it's free. A neural-voice version (Kokoro on Hugging Face) is next on the roadmap.",
+    tags: ["Web Speech API", "In-browser", "Privacy-first"],
   },
   {
-    name: "Bob",
-    username: "@bob",
-    body: "Incredible work! The attention to detail is phenomenal.",
-    img: "https://robohash.org/bob",
-  },
-  {
-    name: "Charlie",
-    username: "@charlie",
-    body: "This exceeded all my expectations. Absolutely stunning!",
-    img: "https://robohash.org/charlie",
-  },
-  {
-    name: "Dave",
-    username: "@dave",
-    body: "Simply breathtaking. The best decision I've made in a while.",
-    img: "https://robohash.org/dave",
-  },
-  {
-    name: "Eve",
-    username: "@eve",
-    body: "So glad I found this. It has changed the game for me.",
-    img: "https://robohash.org/eve",
+    slug: "video-generator",
+    name: "Video Generator",
+    emoji: "🎬",
+    status: "soon",
+    type: "soon",
+    tagline: "Generate short video clips from text prompts.",
+    description:
+      "Describe a scene and generate a short clip. Exploring open video-diffusion models to make this practical in the browser. Currently in development.",
+    tags: ["Generative AI", "Diffusion", "Video"],
   },
 ];
