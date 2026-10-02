@@ -50,6 +50,10 @@ export async function openCall(base, apiName, data, { signal } = {}) {
     body: JSON.stringify({ data }),
     signal,
   })
+  if (start.status === 429) {
+    const body = await start.json().catch(() => ({}))
+    throw new Error(body.error || 'Too many requests — please wait a bit.')
+  }
   if (!start.ok) throw new Error(`Server responded ${start.status}`)
   const { event_id: eventId } = await start.json()
   const stream = await fetch(`${base}/gradio_api/call/${apiName}/${eventId}`, { signal })

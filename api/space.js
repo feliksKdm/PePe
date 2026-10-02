@@ -25,11 +25,45 @@ function allowed(space, path) {
   return Boolean(m && space.apis.includes(m[1]))
 }
 
+// Best-effort per-IP rate limit on starting GPU calls, so one visitor can't
+// burn the whole day's ZeroGPU quota. In-memory, so it's per function instance
+// (Vercel reuses warm instances) — enough to stop casual abuse.
+const LIMITS = { 'video-studio:generate': 5, 'sound-studio:generate': 15 } // per hour
+const DEFAULT_LIMIT = 120
+const WINDOW_MS = 60 * 60 * 1000
+const hits = new Map()
+
+function rateLimited(ip, key) {
+  const now = Date.now()
+  const bucket = `${ip}|${key}`
+  const recent = (hits.get(bucket) || []).filter((t) => now - t < WINDOW_MS)
+  if (recent.length >= (LIMITS[key] ?? DEFAULT_LIMIT)) {
+    hits.set(bucket, recent)
+    return Math.ceil((WINDOW_MS - (now - recent[0])) / 60000)
+  }
+  recent.push(now)
+  hits.set(bucket, recent)
+  if (hits.size > 5000) hits.clear() // keep memory bounded
+  return 0
+}
+
 async function proxy(request) {
   const url = new URL(request.url)
   const space = SPACES[url.searchParams.get('space')]
   const path = (url.searchParams.get('path') || '').replace(/^\/+/, '')
   if (!space || !allowed(space, path)) return new Response('Not found', { status: 404 })
+
+  const call = path.match(/^gradio_api\/call\/([a-z_]+)$/)
+  if (request.method === 'POST' && call) {
+    const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'unknown'
+    const wait = rateLimited(ip, `${url.searchParams.get('space')}:${call[1]}`)
+    if (wait) {
+      return new Response(JSON.stringify({ error: `Rate limit reached — try again in ${wait} min.` }), {
+        status: 429,
+        headers: { 'content-type': 'application/json' },
+      })
+    }
+  }
 
   const target = new URL(`${space.origin}/${path}`)
   for (const [k, v] of url.searchParams) if (k !== 'space' && k !== 'path') target.searchParams.set(k, v)
