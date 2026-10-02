@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Particles } from '../components/Particles'
 import ToolCard from '../components/ToolCard'
 import { tools } from '../constants'
@@ -21,6 +21,14 @@ const STATS = [
 const Tools = () => {
   const [category, setCategory] = useState('all')
   const shown = tools.filter((t) => category === 'all' || t.category === category)
+
+  useEffect(() => {
+    const previous = document.title
+    document.title = "The Lab — free AI tools by Feliks Altymyshov"
+    return () => {
+      document.title = previous
+    }
+  }, [])
 
   return (
     <section className="relative c-space min-h-screen pt-28 md:pt-36 pb-20">

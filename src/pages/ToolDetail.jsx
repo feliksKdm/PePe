@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import GradioEmbed from '../components/GradioEmbed'
 import { StatusBadge, getTool } from '../components/ToolCard'
@@ -20,6 +20,15 @@ const CUSTOM_TOOLS = {
 const ToolDetail = () => {
   const { slug } = useParams()
   const tool = getTool(slug)
+
+  useEffect(() => {
+    if (!tool) return
+    const previous = document.title
+    document.title = `${tool.name} — Feliks's AI Lab`
+    return () => {
+      document.title = previous
+    }
+  }, [tool])
 
   if (!tool) return <Navigate to="/tools" replace />
 

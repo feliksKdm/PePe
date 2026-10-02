@@ -1,5 +1,24 @@
 export const myProjects = [
   {
+    id: 0,
+    title: "The Lab — open AI tools platform",
+    emoji: "🧪",
+    gradient: "from-lavender/40 via-indigo to-storm",
+    accent: "#9b7cf0",
+    description:
+      "Ten free AI tools in one site — image and video generation, voice cloning, TTS, music, transcription, background removal, upscaling and an in-browser SQL data lab — served from seven ZeroGPU Spaces I built and deploy.",
+    subDescription: [
+      "Designed a same-origin proxy (Vercel function) that attaches a server-side Hugging Face token, allowlists endpoints and rate-limits per IP, so every visitor shares one GPU budget safely.",
+      "Built seven Gradio/ZeroGPU backends — SDXL Lightning + Real-ESRGAN, CosyVoice 3, Kokoro, Whisper turbo, AudioLDM2 + MusicGen, Wan2.1 video and a Qwen2.5-Coder SQL copilot — each returning errors as data for a reliable HTTP API.",
+      "Shipped native React UIs instead of iframes: streaming TTS with a gap-free Web Audio scheduler, Civitai-style gallery with remix, Whisper subtitles export, waveform players.",
+      "Moved work into the browser where it wins: DuckDB-WASM analytics over any Hugging Face dataset, ONNX background removal in a Web Worker, MP3 encoding before upload.",
+      "Kept quality and safety measurable: NSFW classifiers on outputs, pre-rendered showcases to save quota, end-to-end tests driving real browsers.",
+    ],
+    tags: ["React", "Hugging Face", "ZeroGPU", "Diffusers", "DuckDB-WASM", "ONNX", "Vercel"],
+    href: "https://github.com/feliksKdm/PePe",
+    to: "/tools",
+  },
+  {
     id: 1,
     title: "License Plate Recognition",
     emoji: "🚗",

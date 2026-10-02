@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
+import { Link } from 'react-router-dom'
 
 const Project = ({ project, index = 0 }) => {
   const [open, setOpen] = useState(false)
@@ -56,15 +57,24 @@ const Project = ({ project, index = 0 }) => {
             >
               Read more
             </button>
-            <a
-              href={project.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2.5 text-sm text-neutral-300 transition-colors hover:border-white/30 hover:text-white"
-            >
-              <img src="/assets/logos/github.svg" alt="" className="h-4 w-4 invert opacity-80" />
-              GitHub
-            </a>
+            {project.to ? (
+              <Link
+                to={project.to}
+                className="flex items-center gap-2 rounded-full border border-aqua/40 px-4 py-2.5 text-sm text-aqua transition-colors hover:border-aqua hover:text-white"
+              >
+                Open the Lab →
+              </Link>
+            ) : (
+              <a
+                href={project.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2.5 text-sm text-neutral-300 transition-colors hover:border-white/30 hover:text-white"
+              >
+                <img src="/assets/logos/github.svg" alt="" className="h-4 w-4 invert opacity-80" />
+                GitHub
+              </a>
+            )}
           </div>
         </div>
       </motion.article>
@@ -127,11 +137,19 @@ const Project = ({ project, index = 0 }) => {
                 ))}
               </div>
 
+              {project.to && (
+                <Link
+                  to={project.to}
+                  className="mt-7 flex w-full items-center justify-center gap-2 rounded-full border border-aqua/40 py-3 text-sm text-aqua transition-colors hover:border-aqua hover:text-white"
+                >
+                  Open the Lab →
+                </Link>
+              )}
               <a
                 href={project.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-radial from-lavender to-royal py-3 text-sm hover-animation"
+                className={`${project.to ? 'mt-3' : 'mt-7'} flex w-full items-center justify-center gap-2 rounded-full bg-radial from-lavender to-royal py-3 text-sm hover-animation`}
               >
                 <img src="/assets/logos/github.svg" alt="" className="h-4 w-4 invert opacity-80" />
                 View on GitHub
