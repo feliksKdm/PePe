@@ -1,72 +1,77 @@
 # Feliks Altymyshov — Portfolio & AI Lab
 
 Personal site of **Feliks Altymyshov**, an AI engineer in New York City working on computer vision.
-It has two parts: a 3D portfolio, and **The Lab**, a set of free AI tools that run in the browser.
+It has two parts: a 3D portfolio, and **The Lab**, a set of free AI tools for images, audio and data.
 There's no sign-up and no paywall.
 
-Built with React 19, Vite, Tailwind CSS v4 and React Three Fiber. Every Lab tool runs either in
-the visitor's browser or on a Hugging Face Space.
+Built with React 19, Vite, Tailwind CSS v4 and React Three Fiber. Heavy models run on the author's
+Hugging Face ZeroGPU Spaces; lighter ones run entirely in the visitor's browser.
 
 ---
 
 ## The Lab
 
-| Tool | Status | How it runs |
+| Tool | What it does | Runs on |
 |---|---|---|
-| 🔊 **Text to Speech** | Live | 10 Kokoro-82M neural voices, streamed from a ZeroGPU Space, with an in-browser fallback |
-| 🎭 **Voice Lab** | Live | Voice cloning and 10 voice/tone presets on Fun-CosyVoice3-0.5B (ZeroGPU) |
-| 🖼️ **Image Upscaler** | Live | Real-ESRGAN on a Hugging Face Space |
-| 🎙️ Video Transcriber | Soon | Whisper-class speech recognition |
-| 🎬 Video Generator | Soon | Open video-diffusion models |
+| 🎨 **Image Studio** | Civitai-style text-to-image: 3 community checkpoints (DreamShaper XL Lightning, RealVisXL V4 Lightning, Animagine XL 4.0), 11 style presets, aspect ratios, batches of up to 4, a 30-image gallery with prompts and seeds you can remix, history in your browser, and a safety filter | ⚡ GPU · `image-studio` |
+| 🎭 **Voice Lab** | Voice cloning and 10 voice/tone presets on Fun-CosyVoice3-0.5B; record or upload your own voice; 50 pre-rendered clips play instantly | ⚡ GPU · `voice-lab` |
+| 🔊 **Text to Speech** | 10 Kokoro-82M neural voices, streamed sentence by sentence, gap-free playback, WAV download | ⚡ GPU · `kokoro-tts` (in-browser fallback) |
+| 🎧 **Sound Studio** | Text-to-sound effects (AudioLDM2) and text-to-music (MusicGen Medium) with waveform players and a 12-clip library | ⚡ GPU · `sound-studio` |
+| 🎙️ **Transcriber** | Whisper large-v3-turbo transcription with timestamps synced to playback, search, and TXT/SRT/VTT export; audio is extracted and compressed in the browser | ⚡ GPU · `transcriber` |
+| ✂️ **Background Remover** | RMBG-1.4 / MODNet cut-outs with a before/after slider and custom backgrounds (color, gradient, blur, image) | 🔒 Browser (ONNX Runtime) |
+| 🔍 **Image Upscaler** | Real-ESRGAN ×2/×4 up to 4096px, with a comparison slider and ×3 zoom; any Image Studio image can be sent here in one click | ⚡ GPU · `image-studio` |
+| 🧮 **Data Lab** | DuckDB-WASM: load CSV/Parquet/JSON or **any public Hugging Face dataset**, auto-profile columns, SQL with suggestions, bar/line/scatter charts, CSV export, and a plain-English **SQL copilot** (Qwen2.5-Coder-7B) | 🔒 Browser + ⚡ `sql-copilot` |
+| 🎬 Video Generator | Planned | — |
 
-Tools are defined in [`src/constants/index.js`](src/constants/index.js) (`tools`). A tool is one of
-three types:
+Tools are listed in [`src/constants/index.js`](src/constants/index.js) (`tools`). Each one has a
+`category` (audio / image / data), a `runs` badge (gpu / browser) and a `type`:
 
-- **`custom`**: built into the site as a React component, loaded only when its page opens.
-- **`gradio`**: a Hugging Face Space embedded in an iframe. Microphone access is allowed, so voice tools work.
-- **`soon`**: a placeholder card with a "notify me" link.
-
-### How Text to Speech works
-
-```
- text ──► chunkText()  sentences, merged into ~60 → 120-char chunks
-            │
-            ├─► ZeroGPU Space  feliksKdm/kokoro-tts   POST /gradio_api/call/speak
-            │     streams one audio event per chunk (base64 int16 PCM)
-            │
-            └─► fallback: Web Worker running kokoro-js (WebGPU or WASM),
-                  used only if the Space can't be reached
-            │
-            ▼
- shapeSilence()  trims Kokoro's padding, caps every pause at 0.18 s
-            │
-            ▼
- Web Audio scheduler  plays chunks back to back with no gaps, highlights the
-                      words being spoken, and offers the result as a WAV download
-```
-
-- **Fast start:** the GPU renders speech about 7× faster than real time. When the Space is warm, the first audio plays in about 1 s.
-- **Gap-free on slow devices:** if a device generates slower than real time (common for single-thread WASM), the player measures that speed and delays the start just long enough that playback never stalls.
-- **Instant voice previews:** each voice's intro clip is pre-rendered in [`public/voices/`](public/voices), so it plays without waiting for the model.
-
-Code: [`src/components/tts/`](src/components/tts)
-
-| File | Role |
-|---|---|
-| `TextToSpeech.jsx` | UI, voice picker, playback scheduler |
-| `remoteEngine.js` | Client for the Space's streaming API |
-| `kokoro.worker.js` | In-browser fallback model |
-| `chunking.js` | Text chunking and silence shaping, with no browser dependencies |
+- **`custom`**: a React component under `src/components/`, lazy-loaded when its page opens.
+- **`gradio`**: a Hugging Face Space embedded in an iframe.
+- **`soon`**: a roadmap card with a "notify me" link.
 
 ---
 
-## Portfolio sections
+## How the GPU tools are wired
 
-- **Hero:** an animated 3D scene (React Three Fiber, drei, maath).
-- **About:** an interactive globe (cobe) and a tech-stack orbit.
-- **Projects:** license plate recognition, a face recognition API, credit card fraud detection and more.
-- **Experience:** a timeline.
-- **Contact:** a form that sends email through EmailJS.
+```
+ browser ──► /hf/<space>/…  (same origin)
+               │
+               ├─ production: api/space.js (Vercel function), routed by vercel.json
+               └─ local dev:  Vite server.proxy (vite.config.js)
+               │
+               │  adds  Authorization: Bearer $HF_TOKEN  (server-side only)
+               ▼
+   https://felikskdm-<space>.hf.space/gradio_api/…   (Gradio HTTP API, ZeroGPU)
+```
+
+- **Quota:** ZeroGPU gives anonymous callers only a few runs a day. The proxy attaches the owner's
+  token, so every visitor uses the owner's Pro allowance (40 GPU-minutes a day). The token never
+  reaches the browser.
+- **Allowlist:** the proxy only forwards the endpoints the tools use (`/info`, `/upload`,
+  `/call/<allowed api>` and generated files under `/tmp/gradio`). Everything else returns 404.
+- **Errors as data:** every Space returns `[result…, errorMessage]` instead of raising, because
+  Gradio's HTTP API doesn't reliably forward exception text.
+- **Large results:** images and audio can be fetched straight from the Space. Gradio allows the
+  site's origin via CORS, which avoids Vercel's 4.5 MB body limit.
+- **Saving quota:** the Voice Lab, Sound Studio, TTS previews and Image Studio gallery ship
+  pre-rendered files (`public/`), and repeated requests are cached in the session.
+
+Client helpers: [`src/lib/gradio.js`](src/lib/gradio.js) (call/upload/SSE),
+[`src/lib/wav.js`](src/lib/wav.js) and [`src/lib/idb.js`](src/lib/idb.js) (local history).
+
+### Text to Speech pipeline
+
+```
+ text ─► chunkText() ─► kokoro-tts Space (streams one chunk per event) ─► shapeSilence()
+                     └► fallback: kokoro-js Web Worker (WebGPU / WASM)          │
+                                                                                ▼
+                         Web Audio scheduler: gap-free playback, live highlighting, WAV export
+```
+
+If a device generates slower than real time, the player measures that speed and delays the start
+just long enough that playback never stalls. Kokoro's padding is trimmed and pauses are capped at
+0.18 s.
 
 ---
 
@@ -76,58 +81,89 @@ Requires Node 20+.
 
 ```bash
 npm install
-npm run dev       # dev server at http://localhost:5173
+npm run dev       # http://localhost:5173
 npm run build     # production build into dist/
-npm run preview   # serve the production build locally
+npm run preview   # serve the build (with the same /hf proxy)
 npm run lint
 ```
 
-The build output in `dist/` is committed to the repo.
+GPU tools work locally as long as you're logged in with the
+[`hf` CLI](https://huggingface.co/docs/huggingface_hub/guides/cli) (`hf auth login`). The dev
+server reads the saved token automatically, or `HF_TOKEN` if it's set.
+
+### Deploying (Vercel)
+
+1. Create a **Read** token at https://huggingface.co/settings/tokens.
+2. In Vercel → Project → Settings → Environment Variables, add `HF_TOKEN` with that token.
+3. Redeploy. `vercel.json` routes `/hf/*` to the proxy and serves the SPA for every other path,
+   so deep links like `/tools/image-studio` work.
+
+---
+
+## Hugging Face Spaces
+
+All Spaces live under [`hf-spaces/`](hf-spaces) and run on **ZeroGPU**.
+
+| Space | Models | API |
+|---|---|---|
+| `image-studio` | DreamShaper XL Lightning, RealVisXL V4 Lightning, Animagine XL 4.0, Real-ESRGAN ×4, Falconsai NSFW classifier | `generate`, `upscale` |
+| `voice-lab` | Fun-CosyVoice3-0.5B, SenseVoice | `preset`, `transcribe`, `clone` |
+| `kokoro-tts` | Kokoro-82M | `speak` (streaming) |
+| `sound-studio` | AudioLDM2, MusicGen Medium | `generate` |
+| `transcriber` | Whisper large-v3-turbo | `transcribe` |
+| `sql-copilot` | Qwen2.5-Coder-7B-Instruct | `ask` |
+
+Deploy or update one with:
+
+```bash
+hf upload feliksKdm/<space> hf-spaces/<space> . --type space
+hf spaces logs feliksKdm/<space> --build    # follow the build
+hf spaces zero-gpu quota                     # remaining GPU time today
+```
+
+The Voice Lab also needs `default_voice.wav`; see `hf-spaces/voice-lab/DEPLOY.md`.
 
 ---
 
 ## Project structure
 
 ```
+api/space.js             Vercel function: allowlisted proxy to the Spaces (adds HF_TOKEN)
+vercel.json              /hf/* → proxy, everything else → SPA
 src/
 ├── App.jsx              routes: /, /tools, /tools/:slug
 ├── pages/               Home, Tools (The Lab), ToolDetail
-├── sections/            Hero, About, Projects, Experiences, Contact, Navbar, Footer
-├── components/          3D scene, globe, cards, timeline, GradioEmbed, tts/
+├── sections/            Hero, About, Projects, Experiences, Contact, Navbar, Footer, ToolsTeaser
+├── components/
+│   ├── imagestudio/     Image Studio (+ gallery.json)
+│   ├── voicelab/        Voice Lab
+│   ├── tts/             Text to Speech (+ worker, chunking, remote engine)
+│   ├── soundstudio/     Sound Studio (+ library.json)
+│   ├── transcriber/     Transcriber (+ MP3 worker, subtitle formats)
+│   ├── bgremover/       Background Remover (+ ONNX worker)
+│   ├── upscaler/        Image Upscaler
+│   └── datalab/         Data Lab (DuckDB engine, SVG charts)
+├── lib/                 gradio.js, wav.js, idb.js
 └── constants/index.js   all content: projects, socials, experience, tools
 public/
-├── models/              3D assets (.glb)
-├── assets/              images and logos
-└── voices/              pre-rendered TTS voice previews
-hf-spaces/               source for the Hugging Face Spaces behind The Lab
-├── kokoro-tts/          Kokoro-82M TTS backend (ZeroGPU, streaming /speak API)
-├── voice-lab/           CosyVoice3 Voice Lab (ZeroGPU), see DEPLOY.md
-└── cosyvoice3/          setup notes
+├── image-studio/        gallery, model covers, style thumbnails
+├── voice-lab/ voices/   pre-rendered voice clips
+└── sound-studio/        pre-rendered sound library
+hf-spaces/               source of every Space (see above)
 ```
 
 To change the site's content (projects, experience, tools), edit `src/constants/index.js`.
-The components don't need to change.
 
 ---
 
-## Hugging Face Spaces
+## Safety and privacy
 
-The backend Spaces live in [`hf-spaces/`](hf-spaces). Deploy them with the
-[`hf` CLI](https://huggingface.co/docs/huggingface_hub/guides/cli) after running `hf auth login`:
-
-```bash
-# Text to Speech backend
-hf upload feliksKdm/kokoro-tts hf-spaces/kokoro-tts . --type space
-
-# Voice Lab (also needs default_voice.wav; see hf-spaces/voice-lab/DEPLOY.md)
-hf upload feliksKdm/voice-lab hf-spaces/voice-lab . --type space
-
-# Check on a deploy
-hf spaces logs feliksKdm/kokoro-tts --build
-```
-
-Both run on **ZeroGPU**. Each visitor's GPU time counts against their own Hugging Face quota.
-When a visitor runs out, the Kokoro Space switches to its CPU instead of failing.
+- **Image Studio** refuses explicit prompts before using any GPU time and runs every result (and
+  every upscale input) through an NSFW classifier.
+- **Voice Lab** asks the visitor to confirm that a cloned voice is theirs.
+- **Browser-only tools** (Background Remover, Data Lab queries) never upload anything. The SQL
+  copilot only sees table schemas and three sample rows.
+- **Local history** (generated images, transcripts) is stored in the visitor's IndexedDB only.
 
 ---
 
@@ -135,15 +171,29 @@ When a visitor runs out, the Kokoro Space switches to its CPU instead of failing
 
 **Frontend:** React 19 · Vite 7 · Tailwind CSS 4 · React Router 7 · Motion · Three.js / React Three Fiber / drei · cobe
 
-**AI:** Kokoro-82M (kokoro-js, Transformers.js, ONNX Runtime Web) · Fun-CosyVoice3-0.5B · SenseVoice · Real-ESRGAN · Gradio · Hugging Face ZeroGPU
+**In the browser:** DuckDB-WASM · Transformers.js / ONNX Runtime Web · kokoro-js · lamejs · Web Audio · IndexedDB
+
+**On the GPU:** Diffusers (SDXL) · Transformers (Whisper, MusicGen, Qwen) · spandrel (Real-ESRGAN) · CosyVoice · Gradio · Hugging Face ZeroGPU
 
 ---
 
-## Credits
+## Credits and licenses
 
-- [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) by hexgrad (Apache-2.0)
-- [Fun-CosyVoice3](https://github.com/FunAudioLLM/CosyVoice) by Alibaba FunAudioLLM (Apache-2.0)
-- [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN) by Xintao Wang et al. (BSD-3-Clause)
+| Model | Author | License |
+|---|---|---|
+| DreamShaper XL Lightning | Lykon | CreativeML OpenRAIL++-M |
+| RealVisXL V4.0 Lightning | SG161222 | CreativeML OpenRAIL++-M |
+| Animagine XL 4.0 | Cagliostro Lab | CreativeML OpenRAIL++-M |
+| Real-ESRGAN ×4 | ai-forever, after Xintao Wang et al. | BSD-3-Clause (per the GitHub repo) |
+| Kokoro-82M | hexgrad | Apache-2.0 |
+| Fun-CosyVoice3 | Alibaba FunAudioLLM | Apache-2.0 |
+| Whisper large-v3-turbo | OpenAI | MIT |
+| AudioLDM2 | CVSSP | CC BY-NC-SA 4.0 (non-commercial) |
+| MusicGen Medium | Meta | CC BY-NC 4.0 (non-commercial) |
+| RMBG-1.4 | BRIA AI | bria-rmbg-1.4 (non-commercial) |
+| MODNet | Ke et al. | Apache-2.0 |
+| Qwen2.5-Coder-7B-Instruct | Alibaba Qwen | Apache-2.0 |
+| Falconsai NSFW image detection | Falconsai | Apache-2.0 |
 
 Voice tools generate synthetic audio. Only clone your own voice, or a voice you have explicit
 permission to use.
