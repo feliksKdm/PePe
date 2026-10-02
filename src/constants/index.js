@@ -204,6 +204,18 @@ export const tools = [
     tags: ["Kokoro-82M", "Neural TTS", "ZeroGPU", "Streaming"],
   },
   {
+    slug: "data-lab",
+    name: "Data Lab",
+    emoji: "🧮",
+    status: "live",
+    type: "custom",
+    category: "data",
+    tagline: "SQL, profiling and charts for any dataset — DuckDB in your browser.",
+    description:
+      "Drop a CSV, Parquet or JSON file, or load any public Hugging Face dataset by name, and explore it instantly. Every column gets an automatic profile (types, missing values, distributions, top values); write SQL with suggested queries, JOIN across tables, flip results into bar, line or scatter charts, and export to CSV. Powered by DuckDB-WASM — your data never leaves the browser.",
+    tags: ["DuckDB-WASM", "SQL", "Hugging Face Datasets", "In-browser"],
+  },
+  {
     slug: "video-generator",
     name: "Video Generator",
     emoji: "🎬",

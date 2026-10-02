@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@breezystack/lamejs": "^1.2.7",
+    "@duckdb/duckdb-wasm": "^1.33.1-dev57.0",
     "@emailjs/browser": "^4.4.1",
     "@gradio/client": "^2.0.0-dev.0",
     "@huggingface/transformers": "^3.8.1",

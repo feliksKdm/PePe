@@ -11,6 +11,7 @@ const CUSTOM_TOOLS = {
   'image-studio': lazy(() => import('../components/imagestudio/ImageStudio')),
   'video-transcriber': lazy(() => import('../components/transcriber/Transcriber')),
   'background-remover': lazy(() => import('../components/bgremover/BgRemover')),
+  'data-lab': lazy(() => import('../components/datalab/DataLab')),
 }
 
 const ToolDetail = () => {
