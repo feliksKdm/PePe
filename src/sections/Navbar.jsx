@@ -52,7 +52,7 @@ function Navbar() {
   const close = () => setIsOpen(false);
 
   return (
-    <div className="fixed inset-x-0 z-20 w-full backdrop-blur-lg bg-primary/40">
+    <div className="fixed inset-x-0 z-20 w-full border-b border-white/5 bg-primary/75 backdrop-blur-lg">
       <div className="mx-auto c-space max-w-7xl">
         <div className="flex items-center justify-between p-2 md:p-0">
           <Link

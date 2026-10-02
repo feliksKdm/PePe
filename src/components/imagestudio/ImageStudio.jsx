@@ -16,6 +16,12 @@ import GALLERY from './gallery.json'
 const MAX_BATCH = 4
 const FAVORITES_KEY = 'image-studio:favorites'
 
+// A varied handful from the gallery for the empty Create view.
+const INSPIRATION = ['floating-city', 'fisherman', 'anime-shrine', 'ramen-alley', 'koi-pond', 'robot-watch']
+  .map((id) => GALLERY.find((g) => g.id === id))
+  .filter(Boolean)
+  .map((g) => ({ id: g.id, meta: g, thumb: galleryThumb(g.id) }))
+
 const modelName = (key) => MODELS.find((m) => m.key === key)?.name ?? key
 const styleName = (key) => STYLES.find((s) => s.key === key)?.name ?? key
 
@@ -174,7 +180,7 @@ const Lightbox = ({ item, onClose, onPrev, onNext, onRemix, onDelete, favorite, 
                 onClick={copy}
                 className="cursor-pointer rounded-full border border-white/15 px-2 py-2 text-xs text-neutral-300 transition-colors hover:border-aqua/50 hover:text-white"
               >
-                {copied ? '✓ Copied' : 'Copy prompt'}
+                {copied ? '✓ Copied' : 'Copy'}
               </button>
               <button
                 onClick={() => downloadUrl(item.full, `image-studio-${meta.seed}.webp`)}
@@ -619,18 +625,33 @@ const ImageStudio = () => {
                 })}
               </div>
             ) : (
-              <div className="flex h-full min-h-80 flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-white/15 p-8 text-center">
-                <p className="text-4xl">🎨</p>
-                <p className="max-w-sm text-sm text-neutral-400">
-                  Pick a model and a style, describe a scene, and hit Generate. Or browse the gallery and remix
-                  something you like.
-                </p>
-                <button
-                  onClick={() => setTab('explore')}
-                  className="cursor-pointer rounded-full border border-white/15 px-4 py-2 text-xs text-neutral-300 transition-colors hover:border-aqua/50 hover:text-white"
-                >
-                  Browse the gallery →
-                </button>
+              <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-primary/40 p-5">
+                <div className="flex items-baseline justify-between gap-3">
+                  <div>
+                    <p className="text-base font-semibold">Need inspiration?</p>
+                    <p className="text-xs text-neutral-400">Click any image to load its exact prompt, model, style and seed.</p>
+                  </div>
+                  <button
+                    onClick={() => setTab('explore')}
+                    className="shrink-0 cursor-pointer font-mono text-[11px] text-neutral-400 transition-colors hover:text-aqua"
+                  >
+                    full gallery →
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {INSPIRATION.map((g) => (
+                    <button
+                      key={g.id}
+                      onClick={() => remix(g.meta)}
+                      className="group relative aspect-square cursor-pointer overflow-hidden rounded-xl border border-white/10 transition-all hover:border-aqua/50"
+                    >
+                      <img src={g.thumb} alt={g.meta.prompt} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-2 text-left text-[10px] leading-snug text-neutral-200 opacity-0 transition-opacity group-hover:opacity-100">
+                        ✨ Remix · {modelName(g.meta.model)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>

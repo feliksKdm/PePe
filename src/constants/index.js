@@ -166,6 +166,18 @@ export const tools = [
     tags: ["SDXL Lightning", "Text-to-Image", "ZeroGPU", "Gallery"],
   },
   {
+    slug: "background-remover",
+    name: "Background Remover",
+    emoji: "✂️",
+    status: "live",
+    type: "custom",
+    category: "image",
+    tagline: "Cut out any subject in seconds — privately, in your browser.",
+    description:
+      "Drop in a photo and get a clean cut-out with a transparent background. Swap in a color, a gradient, a blurred version of the original or your own background image, compare before and after with a slider, and download a PNG. Two models run entirely on your device with ONNX Runtime (WebGPU when available): RMBG-1.4 for general subjects and MODNet for portraits. Images are never uploaded.",
+    tags: ["RMBG-1.4", "MODNet", "In-browser", "Privacy-first"],
+  },
+  {
     slug: "video-transcriber",
     name: "Transcriber",
     emoji: "🎙️",
