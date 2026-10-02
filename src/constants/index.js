@@ -242,12 +242,15 @@ export const tools = [
     slug: "video-generator",
     name: "Video Generator",
     emoji: "🎬",
-    status: "soon",
-    type: "soon",
+    status: "live",
+    runs: "gpu",
+    type: "custom",
     category: "image",
-    tagline: "Generate short video clips from text prompts.",
+    // Native UI (src/components/videostudio) driving
+    // https://huggingface.co/spaces/feliksKdm/video-studio (ZeroGPU)
+    tagline: "Describe a scene and get a short AI video clip.",
     description:
-      "Describe a scene and generate a short clip. Exploring open video-diffusion models to make this practical in the browser. Currently in development.",
-    tags: ["Generative AI", "Diffusion", "Video"],
+      "Text-to-video with Wan2.1-T2V-1.3B (Apache-2.0) on a ZeroGPU Space: describe a scene and its camera motion, choose landscape, portrait or square, and render a 2–4 second 480p clip. Every frame is diffused on the GPU, so a clip takes about a minute. Browse the gallery of ready-made clips, remix their prompts, and download MP4s. A safety filter checks sampled frames.",
+    tags: ["Wan2.1", "Text-to-Video", "ZeroGPU"],
   },
 ];

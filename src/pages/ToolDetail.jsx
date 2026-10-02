@@ -14,6 +14,7 @@ const CUSTOM_TOOLS = {
   'data-lab': lazy(() => import('../components/datalab/DataLab')),
   'image-upscaler': lazy(() => import('../components/upscaler/Upscaler')),
   'sound-studio': lazy(() => import('../components/soundstudio/SoundStudio')),
+  'video-generator': lazy(() => import('../components/videostudio/VideoStudio')),
 }
 
 const ToolDetail = () => {

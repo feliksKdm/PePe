@@ -1,0 +1,8 @@
+torch
+diffusers>=0.33
+transformers>=4.46
+accelerate
+ftfy
+imageio
+imageio-ffmpeg
+pillow

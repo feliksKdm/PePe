@@ -29,7 +29,7 @@ const Tools = () => {
       <p className="font-mono text-xs tracking-[0.3em] text-aqua uppercase">The Lab</p>
       <h1 className="text-heading mt-3 md:text-5xl">AI tools, free to use</h1>
       <p className="subtext mt-4 max-w-2xl md:text-lg">
-        Image generation, voice cloning, speech, transcription and data analysis — things I build for myself and
+        Image and video generation, voice cloning, speech, music, transcription and data analysis — things I build for myself and
         leave open for everyone. Heavy models run on Hugging Face GPUs; the rest run privately in your browser.
       </p>
 

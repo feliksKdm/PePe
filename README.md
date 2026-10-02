@@ -21,7 +21,7 @@ Hugging Face ZeroGPU Spaces; lighter ones run entirely in the visitor's browser.
 | ✂️ **Background Remover** | RMBG-1.4 / MODNet cut-outs with a before/after slider and custom backgrounds (color, gradient, blur, image) | 🔒 Browser (ONNX Runtime) |
 | 🔍 **Image Upscaler** | Real-ESRGAN ×2/×4 up to 4096px, with a comparison slider and ×3 zoom; any Image Studio image can be sent here in one click | ⚡ GPU · `image-studio` |
 | 🧮 **Data Lab** | DuckDB-WASM: load CSV/Parquet/JSON or **any public Hugging Face dataset**, auto-profile columns, SQL with suggestions, bar/line/scatter charts, CSV export, and a plain-English **SQL copilot** (Qwen2.5-Coder-7B) | 🔒 Browser + ⚡ `sql-copilot` |
-| 🎬 Video Generator | Planned | — |
+| 🎬 **Video Generator** | Wan2.1-T2V-1.3B text-to-video: 2–4 s 480p clips in landscape, portrait or square, with a gallery of ready-made clips | ⚡ GPU · `video-studio` |
 
 Tools are listed in [`src/constants/index.js`](src/constants/index.js) (`tools`). Each one has a
 `category` (audio / image / data), a `runs` badge (gpu / browser) and a `type`:
@@ -112,6 +112,7 @@ All Spaces live under [`hf-spaces/`](hf-spaces) and run on **ZeroGPU**.
 | `sound-studio` | AudioLDM2, MusicGen Medium | `generate` |
 | `transcriber` | Whisper large-v3-turbo | `transcribe` |
 | `sql-copilot` | Qwen2.5-Coder-7B-Instruct | `ask` |
+| `video-studio` | Wan2.1-T2V-1.3B, Falconsai NSFW classifier | `generate` |
 
 Deploy or update one with:
 
@@ -142,13 +143,15 @@ src/
 │   ├── transcriber/     Transcriber (+ MP3 worker, subtitle formats)
 │   ├── bgremover/       Background Remover (+ ONNX worker)
 │   ├── upscaler/        Image Upscaler
+│   ├── videostudio/     Video Generator (+ clips.json)
 │   └── datalab/         Data Lab (DuckDB engine, SVG charts)
 ├── lib/                 gradio.js, wav.js, idb.js
 └── constants/index.js   all content: projects, socials, experience, tools
 public/
 ├── image-studio/        gallery, model covers, style thumbnails
 ├── voice-lab/ voices/   pre-rendered voice clips
-└── sound-studio/        pre-rendered sound library
+├── sound-studio/        pre-rendered sound library
+└── video-studio/        pre-rendered video gallery
 hf-spaces/               source of every Space (see above)
 ```
 
@@ -193,6 +196,7 @@ To change the site's content (projects, experience, tools), edit `src/constants/
 | RMBG-1.4 | BRIA AI | bria-rmbg-1.4 (non-commercial) |
 | MODNet | Ke et al. | Apache-2.0 |
 | Qwen2.5-Coder-7B-Instruct | Alibaba Qwen | Apache-2.0 |
+| Wan2.1-T2V-1.3B | Wan-AI (Alibaba) | Apache-2.0 |
 | Falconsai NSFW image detection | Falconsai | Apache-2.0 |
 
 Voice tools generate synthetic audio. Only clone your own voice, or a voice you have explicit

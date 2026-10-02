@@ -13,6 +13,7 @@ const SPACES = {
   'transcriber': { origin: 'https://felikskdm-transcriber.hf.space', apis: ['transcribe'] },
   'sound-studio': { origin: 'https://felikskdm-sound-studio.hf.space', apis: ['generate'] },
   'sql-copilot': { origin: 'https://felikskdm-sql-copilot.hf.space', apis: ['ask'] },
+  'video-studio': { origin: 'https://felikskdm-video-studio.hf.space', apis: ['generate'] },
 }
 
 // Only the endpoints the site's tools use: start a call, read its event

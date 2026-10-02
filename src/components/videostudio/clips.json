@@ -1,0 +1,37 @@
+[
+ {
+  "id": "beach-sunset",
+  "prompt": "ocean waves rolling onto a sandy beach at sunset, cinematic",
+  "aspect": "16:9",
+  "width": 832,
+  "height": 480
+ },
+ {
+  "id": "fox-snow",
+  "prompt": "a red fox trotting through fresh snow in a forest",
+  "aspect": "16:9",
+  "width": 832,
+  "height": 480
+ },
+ {
+  "id": "tokyo-rain",
+  "prompt": "neon-lit Tokyo street at night in the rain, people with umbrellas",
+  "aspect": "9:16",
+  "width": 480,
+  "height": 832
+ },
+ {
+  "id": "paper-boat",
+  "prompt": "a paper boat sailing through a glowing magical river, fantasy",
+  "aspect": "1:1",
+  "width": 624,
+  "height": 624
+ },
+ {
+  "id": "waterfall",
+  "prompt": "a waterfall in a misty rainforest, slow camera push in",
+  "aspect": "16:9",
+  "width": 832,
+  "height": 480
+ }
+]

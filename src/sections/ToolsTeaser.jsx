@@ -15,8 +15,8 @@ const ToolsTeaser = () => {
             <h2 className="text-heading mt-3">Tools you can actually use</h2>
             <p className="subtext mt-3 max-w-lg">
               I build AI tools for my own workflow and keep them open for
-              everyone — image generation, voice cloning, text-to-speech,
-              transcription, background removal and in-browser data analysis.
+              everyone — image and video generation, voice cloning, text-to-speech,
+              music, transcription, background removal and in-browser data analysis.
               Free, no sign-up.
             </p>
           </div>
