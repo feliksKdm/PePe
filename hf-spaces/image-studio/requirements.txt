@@ -4,3 +4,4 @@ transformers>=4.46
 accelerate
 safetensors
 pillow
+spandrel

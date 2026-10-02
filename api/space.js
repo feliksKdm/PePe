@@ -9,7 +9,7 @@
 const SPACES = {
   'voice-lab': { origin: 'https://felikskdm-voice-lab.hf.space', apis: ['preset', 'transcribe', 'clone'] },
   'kokoro-tts': { origin: 'https://felikskdm-kokoro-tts.hf.space', apis: ['speak'] },
-  'image-studio': { origin: 'https://felikskdm-image-studio.hf.space', apis: ['generate'] },
+  'image-studio': { origin: 'https://felikskdm-image-studio.hf.space', apis: ['generate', 'upscale'] },
   'transcriber': { origin: 'https://felikskdm-transcriber.hf.space', apis: ['transcribe'] },
 }
 

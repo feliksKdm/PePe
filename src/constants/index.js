@@ -123,23 +123,26 @@ export const experiences = [
 // ---------------------------------------------------------------------------
 export const tools = [
   {
-    slug: "image-upscaler",
-    name: "Image Upscaler",
-    emoji: "🖼️",
+    slug: "image-studio",
+    name: "Image Studio",
+    emoji: "🎨",
     status: "live",
-    type: "gradio",
+    runs: "gpu",
+    type: "custom",
     category: "image",
-    src: "https://nick088-real-esrgan-pytorch.hf.space",
-    tagline: "Upscale low-resolution images with Real-ESRGAN.",
+    // Native UI (src/components/imagestudio) driving
+    // https://huggingface.co/spaces/feliksKdm/image-studio (ZeroGPU)
+    tagline: "Text-to-image with community checkpoints, styles and a remixable gallery.",
     description:
-      "Drop in a blurry or low-res image and get a sharper, upscaled version back. Runs Real-ESRGAN (PyTorch) on a Hugging Face Space — free to use, right in the browser.",
-    tags: ["Computer Vision", "Real-ESRGAN", "PyTorch"],
+      "A small Civitai-style studio: pick a checkpoint (DreamShaper XL, RealVisXL V4 or Animagine XL 4.0), a style and an aspect ratio, and generate up to four 1024px images in seconds on a ZeroGPU Space. Browse the gallery, open any image to see its exact prompt, seed and settings, and remix it in one click. Your creations are kept in your browser only. A safety filter keeps everything safe for work.",
+    tags: ["SDXL Lightning", "Text-to-Image", "ZeroGPU", "Gallery"],
   },
   {
     slug: "voice-lab",
     name: "Voice Lab",
     emoji: "🎭",
     status: "live",
+    runs: "gpu",
     type: "custom",
     category: "audio",
     // Native UI (src/components/voicelab) driving the API of
@@ -152,36 +155,24 @@ export const tools = [
     tags: ["Voice Cloning", "10 Voice Presets", "CosyVoice 3", "ZeroGPU", "Multilingual"],
   },
   {
-    slug: "image-studio",
-    name: "Image Studio",
-    emoji: "🎨",
+    slug: "text-to-speech",
+    name: "Text to Speech",
+    emoji: "🔊",
     status: "live",
+    runs: "gpu",
     type: "custom",
-    category: "image",
-    // Native UI (src/components/imagestudio) driving
-    // https://huggingface.co/spaces/feliksKdm/image-studio (ZeroGPU)
-    tagline: "Text-to-image with community checkpoints, styles and a remixable gallery.",
+    category: "audio",
+    tagline: "10 natural neural voices, generated on a GPU in about a second.",
     description:
-      "A small Civitai-style studio: pick a checkpoint (DreamShaper XL, RealVisXL V4 or Animagine XL 4.0), a style and an aspect ratio, and generate up to four 1024px images in seconds on a ZeroGPU Space. Browse the gallery, open any image to see its exact prompt, seed and settings, and remix it in one click. Your creations are kept in your browser only. A safety filter keeps everything safe for work.",
-    tags: ["SDXL Lightning", "Text-to-Image", "ZeroGPU", "Gallery"],
-  },
-  {
-    slug: "background-remover",
-    name: "Background Remover",
-    emoji: "✂️",
-    status: "live",
-    type: "custom",
-    category: "image",
-    tagline: "Cut out any subject in seconds — privately, in your browser.",
-    description:
-      "Drop in a photo and get a clean cut-out with a transparent background. Swap in a color, a gradient, a blurred version of the original or your own background image, compare before and after with a slider, and download a PNG. Two models run entirely on your device with ONNX Runtime (WebGPU when available): RMBG-1.4 for general subjects and MODNet for portraits. Images are never uploaded.",
-    tags: ["RMBG-1.4", "MODNet", "In-browser", "Privacy-first"],
+      "Type or paste up to 5,000 characters and hear them in one of 10 hand-picked neural voices — US and UK, male and female. Preview any voice in one tap, tune speed and volume, follow along with live highlighting and download the result as a WAV. Powered by Kokoro-82M on a Hugging Face ZeroGPU Space, streaming sentence by sentence so playback starts almost instantly — with an in-browser fallback if the server is unreachable. Free, and nothing is stored.",
+    tags: ["Kokoro-82M", "Neural TTS", "ZeroGPU", "Streaming"],
   },
   {
     slug: "video-transcriber",
     name: "Transcriber",
     emoji: "🎙️",
     status: "live",
+    runs: "gpu",
     type: "custom",
     category: "audio",
     // Native UI (src/components/transcriber) driving
@@ -192,28 +183,45 @@ export const tools = [
     tags: ["Whisper Turbo", "Speech-to-Text", "Subtitles", "ZeroGPU"],
   },
   {
-    slug: "text-to-speech",
-    name: "Text to Speech",
-    emoji: "🔊",
+    slug: "background-remover",
+    name: "Background Remover",
+    emoji: "✂️",
     status: "live",
+    runs: "browser",
     type: "custom",
-    category: "audio",
-    tagline: "10 natural neural voices, generated on a GPU in about a second.",
+    category: "image",
+    tagline: "Cut out any subject in seconds — privately, in your browser.",
     description:
-      "Type or paste up to 5,000 characters and hear them in one of 10 hand-picked neural voices — US and UK, male and female. Preview any voice in one tap, tune speed and volume, follow along with live highlighting and download the result as a WAV. Powered by Kokoro-82M on a Hugging Face ZeroGPU Space, streaming sentence by sentence so playback starts almost instantly — with an in-browser fallback if the server is unreachable. Free, and nothing is stored.",
-    tags: ["Kokoro-82M", "Neural TTS", "ZeroGPU", "Streaming"],
+      "Drop in a photo and get a clean cut-out with a transparent background. Swap in a color, a gradient, a blurred version of the original or your own background image, compare before and after with a slider, and download a PNG. Two models run entirely on your device with ONNX Runtime (WebGPU when available): RMBG-1.4 for general subjects and MODNet for portraits. Images are never uploaded.",
+    tags: ["RMBG-1.4", "MODNet", "In-browser", "Privacy-first"],
   },
   {
     slug: "data-lab",
     name: "Data Lab",
     emoji: "🧮",
     status: "live",
+    runs: "browser",
     type: "custom",
     category: "data",
     tagline: "SQL, profiling and charts for any dataset — DuckDB in your browser.",
     description:
       "Drop a CSV, Parquet or JSON file, or load any public Hugging Face dataset by name, and explore it instantly. Every column gets an automatic profile (types, missing values, distributions, top values); write SQL with suggested queries, JOIN across tables, flip results into bar, line or scatter charts, and export to CSV. Powered by DuckDB-WASM — your data never leaves the browser.",
     tags: ["DuckDB-WASM", "SQL", "Hugging Face Datasets", "In-browser"],
+  },
+  {
+    slug: "image-upscaler",
+    name: "Image Upscaler",
+    emoji: "🔍",
+    status: "live",
+    runs: "gpu",
+    type: "custom",
+    category: "image",
+    // Native UI (src/components/upscaler) driving /upscale on
+    // https://huggingface.co/spaces/feliksKdm/image-studio (ZeroGPU)
+    tagline: "Upscale images ×2 or ×4 with Real-ESRGAN — compare the detail up close.",
+    description:
+      "Drop in a low-resolution photo or illustration and get a sharper version at twice or four times the size, up to 4096px. Real-ESRGAN runs on a ZeroGPU Space with tiled processing; compare before and after with a slider, zoom in ×3 to inspect the detail, and download the result. Images are processed and discarded, never stored.",
+    tags: ["Real-ESRGAN", "Super-Resolution", "ZeroGPU"],
   },
   {
     slug: "video-generator",

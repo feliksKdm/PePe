@@ -2,6 +2,16 @@ import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import { tools } from '../constants'
 
+export const RunsBadge = ({ runs }) =>
+  runs ? (
+    <span
+      title={runs === 'gpu' ? 'Runs on a Hugging Face ZeroGPU Space' : 'Runs entirely in your browser — nothing is uploaded'}
+      className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-neutral-300"
+    >
+      {runs === 'gpu' ? '⚡ GPU' : '🔒 In-browser'}
+    </span>
+  ) : null
+
 export const StatusBadge = ({ status }) => (
   <span
     className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase ${
@@ -37,7 +47,10 @@ const ToolCard = ({ tool, index = 0 }) => {
           </span>
           <StatusBadge status={tool.status} />
         </div>
-        <h3 className="mt-5 text-xl font-bold">{tool.name}</h3>
+        <div className="mt-5 flex items-center gap-2">
+          <h3 className="text-xl font-bold">{tool.name}</h3>
+          <RunsBadge runs={tool.runs} />
+        </div>
         <p className="subtext mt-2 flex-1">{tool.tagline}</p>
         <div className="mt-4 flex flex-wrap gap-2">
           {tool.tags.map((tag) => (

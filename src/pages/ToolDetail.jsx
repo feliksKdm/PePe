@@ -12,6 +12,7 @@ const CUSTOM_TOOLS = {
   'video-transcriber': lazy(() => import('../components/transcriber/Transcriber')),
   'background-remover': lazy(() => import('../components/bgremover/BgRemover')),
   'data-lab': lazy(() => import('../components/datalab/DataLab')),
+  'image-upscaler': lazy(() => import('../components/upscaler/Upscaler')),
 }
 
 const ToolDetail = () => {

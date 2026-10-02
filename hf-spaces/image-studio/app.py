@@ -17,6 +17,7 @@ import time
 import traceback
 
 import gradio as gr
+import numpy as np
 import spaces
 import torch
 from diffusers import (
@@ -25,6 +26,9 @@ from diffusers import (
     EulerAncestralDiscreteScheduler,
     StableDiffusionXLPipeline,
 )
+from huggingface_hub import hf_hub_download
+from PIL import Image
+from spandrel import ImageModelDescriptor, ModelLoader
 from transformers import pipeline as hf_pipeline
 
 MAX_PROMPT = 500
@@ -107,6 +111,12 @@ for key, m in MODELS.items():
 
 safety = hf_pipeline("image-classification", model="Falconsai/nsfw_image_detection", device="cuda")
 
+# Real-ESRGAN x4 (BSD-3) for the upscaler, loaded through spandrel.
+MAX_UPSCALE_INPUT = 1024  # longest side; x4 → up to 4096px
+_esrgan = ModelLoader().load_from_file(hf_hub_download("ai-forever/Real-ESRGAN", "RealESRGAN_x4.pth"))
+assert isinstance(_esrgan, ImageModelDescriptor)
+esrgan = _esrgan.model.to("cuda").eval().half()
+
 
 @spaces.GPU(duration=30)
 def render(model, prompt, negative, width, height, seed):
@@ -123,6 +133,58 @@ def render(model, prompt, negative, width, height, seed):
     ).images[0]
     scores = {r["label"]: r["score"] for r in safety(image)}
     return image, scores.get("nsfw", 0.0)
+
+
+@spaces.GPU(duration=40)
+def upscale_x4(image):
+    """4x upscale in 384px tiles (with overlap) so any input fits in memory."""
+    x = torch.from_numpy(np.asarray(image)).permute(2, 0, 1)[None].half().div(255).to("cuda")
+    _, _, h, w = x.shape
+    tile, pad, s = 384, 16, 4
+    out = torch.zeros((1, 3, h * s, w * s), dtype=torch.half, device="cuda")
+    with torch.inference_mode():
+        for y0 in range(0, h, tile):
+            for x0 in range(0, w, tile):
+                y1, x1 = min(y0 + tile, h), min(x0 + tile, w)
+                py0, px0 = max(y0 - pad, 0), max(x0 - pad, 0)
+                py1, px1 = min(y1 + pad, h), min(x1 + pad, w)
+                part = esrgan(x[:, :, py0:py1, px0:px1])
+                out[:, :, y0 * s:y1 * s, x0 * s:x1 * s] = part[
+                    :, :, (y0 - py0) * s:(y0 - py0 + y1 - y0) * s, (x0 - px0) * s:(x0 - px0 + x1 - x0) * s
+                ]
+        result = out.clamp(0, 1).mul(255).round().byte()[0].permute(1, 2, 0).cpu().numpy()
+        scores = {r["label"]: r["score"] for r in safety(image)}
+    return Image.fromarray(result), scores.get("nsfw", 0.0)
+
+
+def upscale(path, scale):
+    """API: upscale an uploaded image x2 or x4. Returns (image, meta, error)."""
+    try:
+        if not path:
+            return None, None, "Upload an image first."
+        scale = 4 if int(scale or 4) >= 4 else 2
+        image = Image.open(path).convert("RGB")
+        if max(image.size) > MAX_UPSCALE_INPUT:
+            image.thumbnail((MAX_UPSCALE_INPUT, MAX_UPSCALE_INPUT), Image.LANCZOS)
+        t0 = time.perf_counter()
+        result, nsfw = upscale_x4(image)
+        if nsfw > NSFW_THRESHOLD:
+            return None, None, "The safety filter blocked this image."
+        if scale == 2:
+            result = result.resize((image.width * 2, image.height * 2), Image.LANCZOS)
+        meta = {
+            "scale": scale,
+            "input": [image.width, image.height],
+            "width": result.width,
+            "height": result.height,
+            "seconds": round(time.perf_counter() - t0, 2),
+        }
+        return result, meta, ""
+    except gr.Error as exc:
+        return None, None, str(exc.message)
+    except Exception as exc:
+        traceback.print_exc()
+        return None, None, f"Upscaling failed ({type(exc).__name__}). Please try another image."
 
 
 def generate(prompt, model, style, aspect, seed):
@@ -208,6 +270,15 @@ with gr.Blocks(title="Image Studio") as demo:
         a_error = gr.Textbox()
         a_btn = gr.Button()
     a_btn.click(generate, [a_prompt, a_model, a_style, a_aspect, a_seed], [a_image, a_meta, a_error], api_name="generate")
+
+    with gr.Group(visible=False):
+        u_in = gr.Image(type="filepath")
+        u_scale = gr.Number()
+        u_out = gr.Image(type="pil", format="webp")
+        u_meta = gr.JSON()
+        u_error = gr.Textbox()
+        u_btn = gr.Button()
+    u_btn.click(upscale, [u_in, u_scale], [u_out, u_meta, u_error], api_name="upscale")
 
 if __name__ == "__main__":
     demo.queue(default_concurrency_limit=2).launch()

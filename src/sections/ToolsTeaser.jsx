@@ -14,9 +14,10 @@ const ToolsTeaser = () => {
             </p>
             <h2 className="text-heading mt-3">Tools you can actually use</h2>
             <p className="subtext mt-3 max-w-lg">
-              I build small AI tools for my own workflow and keep them open for
-              everyone — voice cloning, text-to-speech and image upscaling live
-              today; transcription and video generation on the bench.
+              I build AI tools for my own workflow and keep them open for
+              everyone — image generation, voice cloning, text-to-speech,
+              transcription, background removal and in-browser data analysis.
+              Free, no sign-up.
             </p>
           </div>
           <Link
@@ -28,7 +29,7 @@ const ToolsTeaser = () => {
         </div>
 
         <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {tools.map((tool, i) => (
+          {tools.filter((t) => t.status === 'live').slice(0, 6).map((tool, i) => (
             <motion.div
               key={tool.slug}
               initial={{ opacity: 0, y: 16 }}
