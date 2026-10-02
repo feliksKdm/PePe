@@ -142,13 +142,13 @@ export const tools = [
     type: "gradio",
     // Свой Space: https://huggingface.co/spaces/feliksKdm/voice-lab (ZeroGPU)
     src: "https://feliksKdm-voice-lab.hf.space",
-    embedHeight: 1100,
-    tagline: "Hear my cloned voice, or clone your own — CosyVoice 3.",
+    embedHeight: 1250,
+    tagline: "10 ready-made voices and tones, or clone your own — CosyVoice 3.",
     description:
-      "Zero-shot voice cloning and style control on Fun-CosyVoice3-0.5B (Apache-2.0). My own voice is preloaded — type any text and hear me say it in one click, or drop in a 10-second clip to clone a different voice. Supports cross-lingual synthesis in 9 languages and natural-language style instructions. Runs on Hugging Face ZeroGPU.",
+      "Zero-shot voice cloning and style control on Fun-CosyVoice3-0.5B (Apache-2.0). Pick from 10 preset voices and tones — my own voice natural, cheerful, calm or hyped, a deep narrator, a robot, a cartoon and more — type any text and hear it in one click, or drop in a 10-second clip to clone a different voice. Supports cross-lingual synthesis in 9 languages and natural-language style instructions. Runs on Hugging Face ZeroGPU.",
     notice:
       "Only clone your own voice or a voice you have explicit permission to use. Generated audio is synthetic and must not be used to impersonate anyone.",
-    tags: ["Voice Cloning", "CosyVoice 3", "ZeroGPU", "Multilingual"],
+    tags: ["Voice Cloning", "10 Voice Presets", "CosyVoice 3", "ZeroGPU", "Multilingual"],
   },
   {
     slug: "video-transcriber",
@@ -167,10 +167,10 @@ export const tools = [
     emoji: "🔊",
     status: "live",
     type: "custom",
-    tagline: "Turn text into speech — instantly, in your browser.",
+    tagline: "10 natural neural voices, generated on a GPU in about a second.",
     description:
-      "Type or paste up to 5,000 characters and hear them spoken. Pick from every voice installed on your device, tune speed, pitch and volume, and follow along with live word highlighting. Runs 100% in your browser via the Web Speech API — nothing is uploaded, and it's free. A neural-voice version (Kokoro on Hugging Face) is next on the roadmap.",
-    tags: ["Web Speech API", "In-browser", "Privacy-first"],
+      "Type or paste up to 5,000 characters and hear them in one of 10 hand-picked neural voices — US and UK, male and female. Preview any voice in one tap, tune speed and volume, follow along with live highlighting and download the result as a WAV. Powered by Kokoro-82M on a Hugging Face ZeroGPU Space, streaming sentence by sentence so playback starts almost instantly — with an in-browser fallback if the server is unreachable. Free, and nothing is stored.",
+    tags: ["Kokoro-82M", "Neural TTS", "ZeroGPU", "Streaming"],
   },
   {
     slug: "video-generator",

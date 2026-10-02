@@ -4,48 +4,28 @@ emoji: 🔊
 colorFrom: purple
 colorTo: blue
 sdk: gradio
+sdk_version: 5.50.0
 app_file: app.py
 pinned: false
 license: apache-2.0
-short_description: Neural text-to-speech on Kokoro-82M
+short_description: Neural text-to-speech on Kokoro-82M (ZeroGPU)
 ---
 
 # Feliks TTS — neural text-to-speech (Kokoro-82M)
 
-The neural upgrade for the portfolio's Text-to-Speech tool. Kokoro-82M is a
-small open TTS model with near-studio quality — it runs fine on the free
-Hugging Face CPU tier.
+Backend for the Text-to-Speech tool on Feliks Altymyshov's portfolio, plus a
+small UI for anyone visiting the Space directly.
 
-## Deploy (one-time, ~10 minutes)
+- **Hardware:** ZeroGPU. If a visitor's GPU quota runs out, generation falls
+  back to the CPU copy of the model instead of failing.
+- **Voices:** the ten best-graded Kokoro voices (US/UK, female/male).
+- **API:** `/speak` takes `chunks` (a JSON list of strings), `voice`
+  (e.g. `af_heart`) and `speed`, and streams one event per chunk:
+  `{"i", "sr", "pcm" (base64 int16 LE), "gen"}`. The portfolio uses it through
+  Gradio's HTTP API (`POST /gradio_api/call/speak`, then read the SSE stream).
 
-1. Create a free account at https://huggingface.co (if you don't have one).
-2. Go to https://huggingface.co/new-space →
-   - Space name: `kokoro-tts`
-   - License: apache-2.0
-   - SDK: **Gradio**
-   - Hardware: **CPU basic (free)**
-3. On the Space page, open **Files** → **Add file** → upload these four files:
-   `README.md`, `app.py`, `requirements.txt`, `packages.txt`
-   (packages.txt installs `espeak-ng`, which Kokoro needs — don't skip it).
-4. Wait for the build (first build downloads the model, ~5 min).
-   Test it on the Space page.
-5. Your embed URL is: `https://<your-username>-kokoro-tts.hf.space`
+## Redeploy
 
-## Wire it into the portfolio
-
-In `src/constants/index.js`, replace the `text-to-speech` entry's fields:
-
-```js
-type: "gradio",
-src: "https://<your-username>-kokoro-tts.hf.space",
+```bash
+hf upload feliksKdm/kokoro-tts hf-spaces/kokoro-tts . --type space
 ```
-
-(or keep the in-browser tool and add the Space as a *second* tool entry,
-e.g. slug `neural-tts` — both can coexist in The Lab).
-
-## Notes
-
-- Free CPU Spaces sleep after ~48h of inactivity; the first visit wakes them
-  (takes ~30s). That's normal.
-- English voices only for now. Kokoro also supports ja/zh/es/fr/hi/it/pt —
-  add voices to the `VOICES` dict and matching `lang_code` pipelines.

@@ -24,6 +24,7 @@ import torch
 import torchaudio
 import random
 import librosa
+import soundfile as sf
 from funasr import AutoModel
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -50,6 +51,7 @@ from cosyvoice.utils.common import set_all_random_seed, instruct_list
 
 MODE_ZERO_SHOT = "zero_shot"
 MODE_INSTRUCT = "instruct"
+MAX_CHARS = 200
 
 # Default reference voice — my own recording, used when a visitor doesn't
 # supply one, so the tool is playable in a single click.
@@ -57,6 +59,105 @@ MODE_INSTRUCT = "instruct"
 # auto-detected once at boot (see __main__). Hardcode it here to skip that.
 DEFAULT_VOICE = os.path.join(ROOT_DIR, "default_voice.wav")
 DEFAULT_VOICE_TEXT = ""
+
+# Second base voice: the sample speaker that ships with the CosyVoice repo
+# (already used for the warm-up pass, so it is always present in the Space).
+LUMI_VOICE = os.path.join(ROOT_DIR, "zero_shot_prompt.wav")
+LUMI_VOICE_TEXT = "希望你以后能够做的比我还好呦。"
+
+# Pitch-shifted copies of the base voices are rendered here once at boot.
+# Kept inside the app dir (not /tmp) so Gradio is allowed to serve them.
+VOICE_DIR = os.path.join(ROOT_DIR, "voices")
+
+
+def instruct(text):
+    """Wrap a style instruction in the prompt format CosyVoice3 was trained on."""
+    return "You are a helpful assistant. {}<|endofprompt|>".format(text)
+
+
+# -----------------------------
+# Voice presets — 10 voice × tone combinations
+# base:  which reference clip to clone ("feliks" | "lumi")
+# pitch: semitone shift applied to the reference → a new timbre, not just a filter
+# mode:  plain cloning, or cloning + a natural-language style instruction
+# -----------------------------
+PRESETS = {
+    "feliks-natural": dict(
+        emoji="🎙️", name="Feliks · Natural", base="feliks", pitch=0,
+        mode=MODE_ZERO_SHOT, style=None, speed=1.0,
+        voice="My real voice", tone="Neutral, conversational",
+        blurb="A straight clone of my own 10-second recording — no styling on top.",
+        sample="Hi, I'm Feliks. This voice was cloned from a ten second clip — welcome to my lab.",
+    ),
+    "feliks-cheerful": dict(
+        emoji="😄", name="Feliks · Cheerful", base="feliks", pitch=0,
+        mode=MODE_INSTRUCT, style=instruct("请非常开心地说一句话。"), speed=1.05,
+        voice="My real voice", tone="Bright, upbeat",
+        blurb="Same voice, steered to sound genuinely happy.",
+        sample="Guess what? The model finally converged and the demo works on the first try!",
+    ),
+    "feliks-calm": dict(
+        emoji="🌙", name="Feliks · Soft & Calm", base="feliks", pitch=0,
+        mode=MODE_INSTRUCT, style=instruct("请用非常温柔、轻声的语气说一句话。"), speed=0.9,
+        voice="My real voice", tone="Gentle, hushed",
+        blurb="A quiet, gentle delivery — think late-night podcast.",
+        sample="Take a slow breath in… and let it go. There's no rush tonight.",
+    ),
+    "feliks-hype": dict(
+        emoji="⚡", name="Feliks · Hype", base="feliks", pitch=0,
+        mode=MODE_INSTRUCT, style=instruct("请用尽可能快地语速说一句话。"), speed=1.15,
+        voice="My real voice", tone="Fast, high-energy",
+        blurb="Rapid-fire delivery for trailers and launch announcements.",
+        sample="Ladies and gentlemen, it's live! New tools, new models, zero paywalls — go try it right now!",
+    ),
+    "deep-narrator": dict(
+        emoji="🎬", name="Deep Narrator", base="feliks", pitch=-4,
+        mode=MODE_ZERO_SHOT, style=None, speed=0.9,
+        voice="My voice, pitched down 4 semitones", tone="Low, cinematic",
+        blurb="A deeper, slower variant of my voice for documentary-style narration.",
+        sample="In a world of endless data, one small model learned to speak.",
+    ),
+    "robot": dict(
+        emoji="🤖", name="Robot", base="feliks", pitch=-1,
+        mode=MODE_INSTRUCT, style=instruct("你可以尝试用机器人的方式解答吗？"), speed=0.95,
+        voice="My voice, slightly lowered", tone="Flat, mechanical",
+        blurb="Measured and monotone — a friendly android reading its status report.",
+        sample="System check complete. All circuits nominal. Hello, human.",
+    ),
+    "lumi-warm": dict(
+        emoji="🌸", name="Lumi · Warm", base="lumi", pitch=0,
+        mode=MODE_ZERO_SHOT, style=None, speed=1.0,
+        voice="Lumi — CosyVoice studio sample", tone="Warm, friendly",
+        blurb="A second voice from the CosyVoice sample library, speaking English cross-lingually.",
+        sample="Welcome back! I saved your seat — let me tell you what's new today.",
+    ),
+    "lumi-melancholic": dict(
+        emoji="🌧️", name="Lumi · Melancholic", base="lumi", pitch=0,
+        mode=MODE_INSTRUCT, style=instruct("请非常伤心地说一句话。"), speed=0.92,
+        voice="Lumi — CosyVoice studio sample", tone="Sad, wistful",
+        blurb="Slow and wistful, with a heavy heart.",
+        sample="I kept the letter for years, but I never found the courage to open it.",
+    ),
+    "lumi-fired-up": dict(
+        emoji="🔥", name="Lumi · Fired Up", base="lumi", pitch=0,
+        mode=MODE_INSTRUCT, style=instruct("请非常生气地说一句话。"), speed=1.05,
+        voice="Lumi — CosyVoice studio sample", tone="Angry, intense",
+        blurb="Sharp and intense — someone has definitely touched her keyboard.",
+        sample="Who pushed directly to main on a Friday afternoon? I want names. Now.",
+    ),
+    "cartoon": dict(
+        emoji="🎈", name="Cartoon", base="lumi", pitch=4,
+        mode=MODE_INSTRUCT, style=instruct("我想体验一下小猪佩奇风格，可以吗？"), speed=1.05,
+        voice="Lumi, pitched up 4 semitones", tone="Playful, animated",
+        blurb="A bouncy, animated-character voice built on a pitched-up reference.",
+        sample="Oh, look! A big muddy puddle! Let's jump in it together!",
+    ),
+}
+DEFAULT_PRESET = "feliks-natural"
+SAMPLE_TEXTS = {p["sample"] for p in PRESETS.values()}
+
+# Resolved at boot by build_preset_voices(): preset key → (wav path, transcript)
+PRESET_REFS = {}
 
 # -----------------------------
 # Brand theme — matches feliks' portfolio palette
@@ -80,13 +181,15 @@ CSS = """
   --vl-aqua: #33c2cc;
   --vl-lavender: #7a57db;
   --vl-royal: #5c33cc;
+  --vl-mint: #57db96;
+  --vl-sand: #d6995c;
 }
 
 body, .gradio-container {
   background: var(--vl-bg) !important;
   color: var(--vl-ink) !important;
 }
-.gradio-container { max-width: 1080px !important; margin: 0 auto !important; }
+.gradio-container { max-width: 1120px !important; margin: 0 auto !important; }
 
 /* Hide gradio chrome we don't want inside the portfolio iframe */
 footer { display: none !important; }
@@ -98,6 +201,7 @@ footer { display: none !important; }
   border-radius: 16px !important;
   box-shadow: none !important;
 }
+.vl-card { padding: 18px !important; gap: 14px !important; }
 
 /* Labels */
 label > span, .block-title, span[data-testid="block-info"] {
@@ -141,16 +245,16 @@ button.secondary {
 
 a { color: var(--vl-aqua) !important; }
 
-/* Header / footer blocks */
-.vl-header { text-align: left; padding: 4px 4px 12px; }
-.vl-kicker {
+/* Header */
+.vl-header { text-align: left; padding: 4px 4px 8px; }
+.vl-kicker, .vl-step {
   font-family: "JetBrains Mono", monospace;
   font-size: 11px;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--vl-aqua);
-  margin-bottom: 10px;
 }
+.vl-kicker { margin-bottom: 10px; }
 .vl-header h1 {
   font-size: 2rem;
   font-weight: 700;
@@ -160,18 +264,72 @@ a { color: var(--vl-aqua) !important; }
   background-clip: text;
   color: transparent;
 }
-.vl-header p { color: var(--vl-muted); margin: 0 0 6px; max-width: 640px; }
-.vl-note {
-  font-size: 12px;
-  color: #d6995c !important;
+.vl-header p { color: var(--vl-muted); margin: 0 0 6px; max-width: 680px; }
+.vl-note { font-size: 12px; color: var(--vl-sand) !important; }
+.vl-step b { color: var(--vl-ink); font-weight: 600; letter-spacing: 0.12em; }
+
+/* Voice gallery — the radio rendered as a grid of selectable cards */
+#vl-presets { background: transparent !important; border: none !important; padding: 0 !important; }
+#vl-presets .wrap {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px !important;
 }
-.vl-step {
+#vl-presets label {
+  position: relative;
+  margin: 0 !important;
+  padding: 11px 12px !important;
+  border: 1px solid var(--vl-line) !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--vl-ink) !important;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+#vl-presets label span {
+  color: var(--vl-ink) !important;
+  font-size: 13.5px !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+#vl-presets label:hover { border-color: rgba(51, 194, 204, 0.45) !important; transform: translateY(-1px); }
+#vl-presets label.selected, #vl-presets label:has(input:checked) {
+  border-color: var(--vl-lavender) !important;
+  background: linear-gradient(135deg, rgba(122, 87, 219, 0.28), rgba(51, 194, 204, 0.08)) !important;
+  box-shadow: 0 0 22px -10px rgba(122, 87, 219, 0.9);
+}
+#vl-presets input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+
+/* Selected-voice card */
+.vl-voice {
+  border: 1px solid var(--vl-line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(122, 87, 219, 0.10), rgba(51, 194, 204, 0.04));
+}
+.vl-voice-title { font-size: 1.05rem; font-weight: 600; color: var(--vl-ink); }
+.vl-voice p { margin: 6px 0 10px; color: var(--vl-muted); font-size: 13.5px; }
+.vl-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.vl-chip {
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--vl-aqua);
+  font-size: 10.5px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  border: 1px solid var(--vl-line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--vl-muted);
 }
+.vl-chip.aqua { color: var(--vl-aqua); border-color: rgba(51, 194, 204, 0.35); }
+.vl-chip.lav { color: #b9a3f5; border-color: rgba(122, 87, 219, 0.45); }
+.vl-chip.mint { color: var(--vl-mint); border-color: rgba(87, 219, 150, 0.35); }
+
+/* Character counter */
+#vl-count { text-align: right; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--vl-muted); }
+#vl-count.over { color: #e5484d; }
+
+/* Generate */
+#vl-generate { min-height: 52px; font-size: 1rem !important; }
+
 .vl-footer {
   text-align: center;
   font-family: "JetBrains Mono", monospace;
@@ -185,10 +343,8 @@ HEADER_HTML = """
 <div class="vl-header">
   <div class="vl-kicker">The Lab // Voice</div>
   <h1>Voice Lab</h1>
-  <p>Clone a voice from a few seconds of audio, or steer it with a natural-language
-  style instruction — powered by Fun-CosyVoice3-0.5B.</p>
-  <p><strong style="color:#57db96">My voice is already loaded</strong> — just hit
-  Generate to hear it, or drop in your own clip to clone something else.</p>
+  <p>Pick one of ten voices and tones, type a line, hit Generate. Or clone your own
+  voice from a few seconds of audio — powered by Fun-CosyVoice3-0.5B.</p>
   <p class="vl-note">⚠ Only clone your own voice or one you have explicit permission to use.
   Generated audio is synthetic.</p>
 </div>
@@ -200,6 +356,42 @@ FOOTER_HTML = """
   &nbsp;·&nbsp; FUN-COSYVOICE3-0.5B (APACHE-2.0) &nbsp;·&nbsp; RUNS ON ZEROGPU
 </div>
 """
+
+CUSTOM_VOICE_HTML = """
+<div class="vl-voice">
+  <div class="vl-voice-title">🎧 Your voice</div>
+  <p>Using the clip you uploaded or recorded. Check the transcript below matches it word for word.
+  Pick a preset again any time to switch back.</p>
+  <div class="vl-chips"><span class="vl-chip mint">Custom clone</span></div>
+</div>
+"""
+
+# Counts characters in the browser so typing never round-trips to the Space.
+COUNT_JS = """
+(text) => {
+  const n = (text || "").length;
+  const el = document.querySelector("#vl-count");
+  if (el) el.classList.toggle("over", n > %d);
+  return `${n} / %d characters`;
+}
+""" % (MAX_CHARS, MAX_CHARS)
+
+
+def preset_card(key):
+    p = PRESETS[key]
+    mode_label = "Clone + style" if p["mode"] == MODE_INSTRUCT else "Pure clone"
+    return """
+<div class="vl-voice">
+  <div class="vl-voice-title">{emoji} {name}</div>
+  <p>{blurb}</p>
+  <div class="vl-chips">
+    <span class="vl-chip aqua">Voice · {voice}</span>
+    <span class="vl-chip lav">Tone · {tone}</span>
+    <span class="vl-chip">{mode_label} · {speed:.2f}×</span>
+  </div>
+</div>
+""".format(mode_label=mode_label, **p)
+
 
 # -----------------------------
 # Audio post-process (unchanged)
@@ -231,6 +423,36 @@ def postprocess(wav):
     return out_path
 
 
+def build_preset_voices():
+    """Resolve every preset to a reference clip, rendering pitch variants once.
+
+    Runs on CPU at boot so selecting a preset never costs ZeroGPU quota.
+    Presets whose base clip is missing are dropped instead of crashing the app.
+    """
+    bases = {
+        "feliks": (DEFAULT_VOICE, DEFAULT_VOICE_TEXT),
+        "lumi": (LUMI_VOICE, LUMI_VOICE_TEXT),
+    }
+    os.makedirs(VOICE_DIR, exist_ok=True)
+    for key, p in PRESETS.items():
+        path, text = bases[p["base"]]
+        if not os.path.exists(path):
+            logging.warning("preset %s skipped: missing %s", key, path)
+            continue
+        if p["pitch"]:
+            shifted = os.path.join(VOICE_DIR, "{}_{:+d}.wav".format(p["base"], p["pitch"]))
+            if not os.path.exists(shifted):
+                try:
+                    y, sr = librosa.load(path, sr=None, mono=True)
+                    y = librosa.effects.pitch_shift(y, sr=sr, n_steps=p["pitch"])
+                    sf.write(shifted, y, sr)
+                except Exception as exc:
+                    logging.warning("preset %s pitch shift failed: %s", key, exc)
+                    continue
+            path = shifted
+        PRESET_REFS[key] = (path, text)
+
+
 @spaces.GPU
 def prompt_wav_recognition(prompt_wav):
     if prompt_wav is None:
@@ -253,12 +475,17 @@ def generate_audio(
     prompt_wav_record,
     instruct_text,
     seed,
+    speed,
 ):
-    if len(tts_text) > 200:
-        gr.Warning("Your input text is too long; please keep it within 200 characters.")
+    if not tts_text.strip():
+        gr.Warning("Type something for the voice to say first.")
         return (target_sr, default_data)
 
-    speed = 1.0
+    if len(tts_text) > MAX_CHARS:
+        gr.Warning("Your input text is too long; please keep it within {} characters.".format(MAX_CHARS))
+        return (target_sr, default_data)
+
+    speed = float(speed or 1.0)
 
     # A recording wins over the upload slot: the upload slot is pre-filled with
     # the default voice, so preferring it would make recording impossible.
@@ -270,7 +497,7 @@ def generate_audio(
         prompt_wav = None
 
     if mode_value == MODE_INSTRUCT:
-        if instruct_text == "":
+        if not instruct_text:
             gr.Warning("You are using Style control; please pick or type a style instruction.")
             return (target_sr, default_data)
         if prompt_wav is None:
@@ -279,11 +506,10 @@ def generate_audio(
 
     if mode_value == MODE_ZERO_SHOT:
         if prompt_wav is None:
-            gr.Warning("Reference audio is empty — record or upload a short clip first.")
+            gr.Warning("Reference audio is empty — pick a preset, or record/upload a short clip.")
             return (target_sr, default_data)
 
-        import soundfile as _sf
-        info = _sf.info(prompt_wav)
+        info = sf.info(prompt_wav)
         if info.samplerate < prompt_sr:
             gr.Warning(
                 "Reference sample rate {} is below {}.".format(info.samplerate, prompt_sr)
@@ -334,77 +560,160 @@ def on_mode_change(mode_value):
     return gr.update(visible=(mode_value == MODE_INSTRUCT))
 
 
+def apply_preset(key, current_text):
+    """Load a preset into every control. CPU-only — no ZeroGPU cost."""
+    if key not in PRESET_REFS:
+        return [gr.update()] * 9
+    p = PRESETS[key]
+    path, transcript = PRESET_REFS[key]
+    # Only swap the script if the visitor hasn't written their own.
+    keep_text = current_text.strip() and current_text not in SAMPLE_TEXTS
+    return [
+        preset_card(key),
+        gr.update(value=path),                     # reference clip
+        gr.update(value=None),                     # clear any recording
+        transcript,                                # reference transcript
+        p["mode"],                                 # mode radio
+        gr.update(
+            value=p["style"] or instruct_list[0],
+            visible=p["mode"] == MODE_INSTRUCT,
+        ),                                         # style instruction
+        p["speed"],                                # speed slider
+        gr.update() if keep_text else p["sample"], # script
+        gr.update(open=False),                     # collapse "use your own voice"
+    ]
+
+
+def mark_custom_voice():
+    return CUSTOM_VOICE_HTML, gr.update(value=None)
+
+
 def main():
+    available = [k for k in PRESETS if k in PRESET_REFS]
+    initial = DEFAULT_PRESET if DEFAULT_PRESET in available else (available[0] if available else None)
+    init = PRESETS[initial] if initial else PRESETS[DEFAULT_PRESET]
+    init_ref = PRESET_REFS.get(initial, (None, ""))
+
     with gr.Blocks(theme=THEME, css=CSS, title="Voice Lab — Feliks Altymyshov") as demo:
         gr.HTML(HEADER_HTML)
 
         with gr.Row(equal_height=False):
-            # Step 1 — reference voice
-            with gr.Column():
-                gr.HTML(
-                    '<div class="vl-step">Step 1 · Reference voice '
-                    '<span style="color:#57db96">· my voice is preloaded</span></div>'
+            # Step 1 — pick a voice
+            with gr.Column(scale=6, elem_classes="vl-card"):
+                gr.HTML('<div class="vl-step">Step 1 · <b>Choose a voice</b></div>')
+                preset_radio = gr.Radio(
+                    choices=[("{} {}".format(PRESETS[k]["emoji"], PRESETS[k]["name"]), k) for k in available],
+                    value=initial,
+                    show_label=False,
+                    container=False,
+                    elem_id="vl-presets",
                 )
-                with gr.Row():
-                    prompt_wav_upload = gr.Audio(
-                        sources="upload",
-                        type="filepath",
-                        label="Reference clip (≤ 10 s, ≥ 16 kHz)",
-                        value=DEFAULT_VOICE if os.path.exists(DEFAULT_VOICE) else None,
+                voice_card = gr.HTML(preset_card(initial) if initial else CUSTOM_VOICE_HTML)
+
+                with gr.Accordion("🎧 Use your own voice instead", open=not available) as own_voice:
+                    gr.Markdown(
+                        "Upload or record **5–10 seconds** of clean speech. "
+                        "The transcript fills in automatically — fix any wrong words."
                     )
-                    prompt_wav_record = gr.Audio(
-                        sources="microphone",
-                        type="filepath",
-                        label="…or record your own",
+                    with gr.Row():
+                        prompt_wav_upload = gr.Audio(
+                            sources="upload",
+                            type="filepath",
+                            label="Reference clip (≤ 10 s, ≥ 16 kHz)",
+                            value=init_ref[0],
+                        )
+                        prompt_wav_record = gr.Audio(
+                            sources="microphone",
+                            type="filepath",
+                            label="…or record yourself",
+                        )
+                    prompt_text = gr.Textbox(
+                        label="What the reference says",
+                        lines=2,
+                        placeholder="Auto-detected from your clip — fix it here if it's wrong…",
+                        value=init_ref[1],
                     )
-                prompt_text = gr.Textbox(
-                    label="What the reference says",
-                    lines=2,
-                    placeholder="Auto-detected from your clip — fix it here if it's wrong…",
-                    value=DEFAULT_VOICE_TEXT,
-                )
 
             # Step 2 — what to say
-            with gr.Column():
-                gr.HTML('<div class="vl-step">Step 2 · What to generate</div>')
+            with gr.Column(scale=5, elem_classes="vl-card"):
+                gr.HTML('<div class="vl-step">Step 2 · <b>Write the script</b></div>')
                 tts_text = gr.Textbox(
-                    label="Text to speak (≤ 200 characters)",
-                    lines=4,
-                    value="Hi, I'm Feliks. This voice was cloned from a ten second clip — welcome to my lab.",
+                    label="Text to speak",
+                    lines=5,
+                    value=init["sample"],
+                    placeholder="Type anything up to {} characters…".format(MAX_CHARS),
                 )
-                mode_radio = gr.Radio(
-                    choices=[
-                        ("Voice cloning", MODE_ZERO_SHOT),
-                        ("Style control", MODE_INSTRUCT),
-                    ],
-                    value=MODE_ZERO_SHOT,
-                    label="Mode",
+                char_count = gr.HTML(
+                    "{} / {} characters".format(len(init["sample"]), MAX_CHARS),
+                    elem_id="vl-count",
                 )
-                instruct_text = gr.Dropdown(
-                    choices=instruct_list,
-                    value=instruct_list[0],
-                    label="Style instruction",
-                    visible=False,
+                gr.Examples(
+                    examples=[[PRESETS[k]["sample"]] for k in available[:5]],
+                    inputs=[tts_text],
+                    label="Need a line? Try one of these",
                 )
-                with gr.Accordion("Advanced", open=False):
+
+                with gr.Accordion("⚙️ Fine-tune", open=False):
+                    mode_radio = gr.Radio(
+                        choices=[
+                            ("Pure clone", MODE_ZERO_SHOT),
+                            ("Clone + style", MODE_INSTRUCT),
+                        ],
+                        value=init["mode"],
+                        label="Mode",
+                    )
+                    instruct_text = gr.Dropdown(
+                        choices=instruct_list,
+                        value=init["style"] or instruct_list[0],
+                        label="Style instruction",
+                        allow_custom_value=True,
+                        visible=init["mode"] == MODE_INSTRUCT,
+                    )
+                    speed = gr.Slider(
+                        minimum=0.7, maximum=1.3, step=0.05,
+                        value=init["speed"], label="Speed",
+                    )
                     with gr.Row():
                         seed = gr.Number(value=0, label="Seed")
                         seed_button = gr.Button("🎲 Randomize", size="sm")
 
-        generate_button = gr.Button("Generate speech", variant="primary", size="lg")
-        audio_output = gr.Audio(label="Result", autoplay=True, streaming=False)
+                generate_button = gr.Button(
+                    "▶ Generate speech", variant="primary", size="lg", elem_id="vl-generate"
+                )
+                audio_output = gr.Audio(label="Result", autoplay=True, streaming=False)
 
         gr.HTML(FOOTER_HTML)
 
-        # Wiring — identical to the original demo
+        # Wiring
         seed_button.click(generate_seed, inputs=[], outputs=seed)
         mode_radio.change(fn=on_mode_change, inputs=[mode_radio], outputs=[instruct_text])
-        prompt_wav_upload.change(
-            fn=prompt_wav_recognition, inputs=[prompt_wav_upload], outputs=[prompt_text]
+        preset_radio.input(
+            fn=apply_preset,
+            inputs=[preset_radio, tts_text],
+            outputs=[
+                voice_card,
+                prompt_wav_upload,
+                prompt_wav_record,
+                prompt_text,
+                mode_radio,
+                instruct_text,
+                speed,
+                tts_text,
+                own_voice,
+            ],
         )
-        prompt_wav_record.change(
-            fn=prompt_wav_recognition, inputs=[prompt_wav_record], outputs=[prompt_text]
-        )
+        tts_text.change(fn=None, inputs=[tts_text], outputs=[char_count], js=COUNT_JS)
+
+        # .upload / .stop_recording (not .change) so that loading a preset
+        # programmatically doesn't trigger a paid ASR pass on ZeroGPU.
+        for audio, event in ((prompt_wav_upload, "upload"), (prompt_wav_record, "stop_recording")):
+            getattr(audio, event)(
+                fn=prompt_wav_recognition, inputs=[audio], outputs=[prompt_text]
+            )
+            getattr(audio, event)(
+                fn=mark_custom_voice, inputs=[], outputs=[voice_card, preset_radio]
+            )
+
         generate_button.click(
             generate_audio,
             inputs=[
@@ -415,11 +724,12 @@ def main():
                 prompt_wav_record,
                 instruct_text,
                 seed,
+                speed,
             ],
             outputs=[audio_output],
         )
 
-    demo.queue(default_concurrency_limit=4).launch()
+    demo.queue(default_concurrency_limit=4).launch(allowed_paths=[VOICE_DIR])
 
 
 if __name__ == "__main__":
@@ -464,5 +774,8 @@ if __name__ == "__main__":
         except Exception as exc:  # never block startup on the preset
             logging.warning("default voice transcription failed: %s", exc)
             DEFAULT_VOICE_TEXT = ""
+
+    build_preset_voices()
+    logging.info("voice presets ready: %s", ", ".join(PRESET_REFS))
 
     main()

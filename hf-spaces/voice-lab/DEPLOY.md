@@ -28,6 +28,23 @@ It becomes the preloaded reference so visitors hear your voice in one click.
 - If `default_voice.wav` is missing, the app falls back to the old behaviour
   (empty slot) instead of crashing.
 
+## Voice presets
+
+The left panel is a gallery of 10 voice × tone presets (see `PRESETS` in
+`app.py`). They are built from two reference clips that are already in the Space:
+
+- `default_voice.wav` — your voice (Natural, Cheerful, Soft & Calm, Hype,
+  Deep Narrator, Robot)
+- `zero_shot_prompt.wav` — the CosyVoice sample speaker, "Lumi" (Warm,
+  Melancholic, Fired Up, Cartoon)
+
+Deep Narrator, Robot and Cartoon clone a **pitch-shifted** copy of the clip.
+Those copies are rendered once at boot on CPU into `voices/`, so nothing extra
+needs uploading. Tones come from CosyVoice3 style instructions plus a
+per-preset speed. If a preset sounds off, tweak its `style`, `pitch` or
+`speed` in `PRESETS`. Choosing a preset never runs on ZeroGPU; only Generate
+does.
+
 ## Verify after deploy
 
 Open the Space and check the log line `default voice transcript: …` — it should
