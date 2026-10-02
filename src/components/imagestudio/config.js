@@ -6,13 +6,37 @@ export const MAX_PROMPT = 500
 
 const asset = (path) => `${import.meta.env.BASE_URL}image-studio/${path}`
 
+// `space` routes each model to the ZeroGPU Space that serves it. Models with
+// `probe: true` live on Spaces that report availability via /models (Krea is
+// gated and only appears once its license is accepted on the Hub).
 export const MODELS = [
+  {
+    key: 'zimage',
+    name: 'Z-Image Turbo',
+    tag: 'New · Photoreal',
+    blurb: 'Tongyi Lab\'s 6B turbo model: top-tier photorealism and legible text in images. 8 steps.',
+    steps: 8,
+    space: '/hf/zimage-turbo',
+    probe: true,
+    cover: asset('models/zimage.webp'),
+  },
+  {
+    key: 'krea',
+    name: 'Krea 2 Turbo',
+    tag: 'New · Aesthetic',
+    blurb: 'Krea\'s 13B turbo model with a strong, cinematic aesthetic. 8 steps.',
+    steps: 8,
+    space: '/hf/krea-turbo',
+    probe: true,
+    cover: asset('models/krea.webp'),
+  },
   {
     key: 'dreamshaper',
     name: 'DreamShaper XL',
     tag: 'Versatile',
     blurb: 'All-rounder for art, fantasy and illustration. Lightning-distilled: 6 steps.',
     steps: 6,
+    space: SPACE_URL,
     cover: asset('models/dreamshaper.webp'),
   },
   {
@@ -21,6 +45,7 @@ export const MODELS = [
     tag: 'Photoreal',
     blurb: 'Photographic realism: people, products, places. Lightning-distilled: 6 steps.',
     steps: 6,
+    space: SPACE_URL,
     cover: asset('models/realvis.webp'),
   },
   {
@@ -29,6 +54,7 @@ export const MODELS = [
     tag: 'Anime',
     blurb: 'Anime and illustration. Slower (24 steps), but true to the style.',
     steps: 24,
+    space: SPACE_URL,
     cover: asset('models/animagine.webp'),
   },
 ]

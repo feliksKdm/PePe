@@ -13,10 +13,10 @@ Hugging Face ZeroGPU Spaces; lighter ones run entirely in the visitor's browser.
 
 | Tool | What it does | Runs on |
 |---|---|---|
-| 🎨 **Image Studio** | Civitai-style text-to-image: 3 community checkpoints (DreamShaper XL Lightning, RealVisXL V4 Lightning, Animagine XL 4.0), 11 style presets, aspect ratios, batches of up to 4, a 30-image gallery with prompts and seeds you can remix, history in your browser, and a safety filter | ⚡ GPU · `image-studio` |
+| 🎨 **Image Studio** | Civitai-style text-to-image with 5 models: Z-Image Turbo, Krea 2 Turbo (once its license is accepted), DreamShaper XL Lightning, RealVisXL V4 Lightning and Animagine XL 4.0. 11 style presets, aspect ratios, batches of up to 4, a 34-image gallery with prompts and seeds you can remix, history in your browser, and a safety filter | ⚡ GPU · `image-studio`, `zimage-turbo`, `krea-turbo` |
 | 🎭 **Voice Lab** | Voice cloning and 10 voice/tone presets on Fun-CosyVoice3-0.5B; record or upload your own voice; 50 pre-rendered clips play instantly | ⚡ GPU · `voice-lab` |
 | 🔊 **Text to Speech** | 10 Kokoro-82M neural voices, streamed sentence by sentence, gap-free playback, WAV download | ⚡ GPU · `kokoro-tts` (in-browser fallback) |
-| 🎧 **Sound Studio** | Text-to-sound effects (AudioLDM2) and text-to-music (MusicGen Medium) with waveform players and a 12-clip library | ⚡ GPU · `sound-studio` |
+| 🎧 **Sound Studio** | Text-to-sound effects (Stable Audio Open once its license is accepted, otherwise AudioLDM2) and text-to-music (MusicGen Medium), loudness-mastered to about −18/−20 dBFS, with waveform players and a 12-clip library | ⚡ GPU · `sound-studio` |
 | 🎙️ **Transcriber** | Whisper large-v3-turbo transcription with timestamps synced to playback, search, and TXT/SRT/VTT export; audio is extracted and compressed in the browser | ⚡ GPU · `transcriber` |
 | ✂️ **Background Remover** | RMBG-1.4 / MODNet cut-outs with a before/after slider and custom backgrounds (color, gradient, blur, image) | 🔒 Browser (ONNX Runtime) |
 | 🔍 **Image Upscaler** | Real-ESRGAN ×2/×4 up to 4096px, with a comparison slider and ×3 zoom; any Image Studio image can be sent here in one click | ⚡ GPU · `image-studio` |
@@ -109,7 +109,9 @@ All Spaces live under [`hf-spaces/`](hf-spaces) and run on **ZeroGPU**.
 | `image-studio` | DreamShaper XL Lightning, RealVisXL V4 Lightning, Animagine XL 4.0, Real-ESRGAN ×4, Falconsai NSFW classifier | `generate`, `upscale` |
 | `voice-lab` | Fun-CosyVoice3-0.5B, SenseVoice | `preset`, `transcribe`, `clone` |
 | `kokoro-tts` | Kokoro-82M | `speak` (streaming) |
-| `sound-studio` | AudioLDM2, MusicGen Medium | `generate` |
+| `sound-studio` | Stable Audio Open 1.0 (gated, optional), AudioLDM2, MusicGen Medium | `generate` |
+| `zimage-turbo` | Z-Image-Turbo (`MODEL_KEY=zimage`, source `turbo-models/`) | `generate`, `models` |
+| `krea-turbo` | Krea-2-Turbo (`MODEL_KEY=krea`, gated, source `turbo-models/`) | `generate`, `models` |
 | `transcriber` | Whisper large-v3-turbo | `transcribe` |
 | `sql-copilot` | Qwen2.5-Coder-7B-Instruct | `ask` |
 | `video-studio` | Wan2.1-T2V-1.3B, Falconsai NSFW classifier | `generate` |
@@ -123,6 +125,11 @@ hf spaces zero-gpu quota                     # remaining GPU time today
 ```
 
 The Voice Lab also needs `default_voice.wav`; see `hf-spaces/voice-lab/DEPLOY.md`.
+
+**Gated models** (Krea 2 Turbo, Stable Audio Open) need two things before they load: accept the license
+on the model's Hub page, and add an `HF_TOKEN` secret (a read token) to the Space. Then restart it:
+`hf spaces restart feliksKdm/krea-turbo`. Until then those Spaces report the model as unavailable,
+and the site shows it as "Soon" (or falls back to AudioLDM2 for effects).
 
 ---
 
@@ -184,6 +191,8 @@ To change the site's content (projects, experience, tools), edit `src/constants/
 
 | Model | Author | License |
 |---|---|---|
+| Z-Image-Turbo | Tongyi-MAI (Alibaba) | Apache-2.0 |
+| Krea 2 Turbo | Krea | Krea 2 Community License (requires content filtering) |
 | DreamShaper XL Lightning | Lykon | CreativeML OpenRAIL++-M |
 | RealVisXL V4.0 Lightning | SG161222 | CreativeML OpenRAIL++-M |
 | Animagine XL 4.0 | Cagliostro Lab | CreativeML OpenRAIL++-M |
@@ -191,6 +200,7 @@ To change the site's content (projects, experience, tools), edit `src/constants/
 | Kokoro-82M | hexgrad | Apache-2.0 |
 | Fun-CosyVoice3 | Alibaba FunAudioLLM | Apache-2.0 |
 | Whisper large-v3-turbo | OpenAI | MIT |
+| Stable Audio Open 1.0 | Stability AI | Stability AI Community License |
 | AudioLDM2 | CVSSP | CC BY-NC-SA 4.0 (non-commercial) |
 | MusicGen Medium | Meta | CC BY-NC 4.0 (non-commercial) |
 | RMBG-1.4 | BRIA AI | bria-rmbg-1.4 (non-commercial) |

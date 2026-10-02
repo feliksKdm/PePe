@@ -15,6 +15,8 @@ const SPACES = {
   'sound-studio': 'https://felikskdm-sound-studio.hf.space',
   'sql-copilot': 'https://felikskdm-sql-copilot.hf.space',
   'video-studio': 'https://felikskdm-video-studio.hf.space',
+  'zimage-turbo': 'https://felikskdm-zimage-turbo.hf.space',
+  'krea-turbo': 'https://felikskdm-krea-turbo.hf.space',
 }
 // Dev only: use HF_TOKEN, or the token saved by `hf auth login`, so local
 // testing runs on your ZeroGPU quota instead of the tiny anonymous one.

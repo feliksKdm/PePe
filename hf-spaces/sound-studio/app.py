@@ -15,6 +15,7 @@ import numpy as np
 import spaces
 import torch
 from diffusers import AudioLDM2Pipeline
+from scipy.signal import butter, sosfilt
 from transformers import AutoProcessor, MusicgenForConditionalGeneration
 
 MAX_PROMPT = 300
@@ -22,6 +23,20 @@ LIMITS = {"sfx": (1, 10), "music": (5, 20)}  # seconds
 
 sfx_pipe = AudioLDM2Pipeline.from_pretrained("cvssp/audioldm2", torch_dtype=torch.float16).to("cuda")
 SFX_RATE = 16_000
+
+# Stable Audio Open (44.1 kHz stereo) sounds far more natural for effects, but
+# it's gated: it loads only once the owner has accepted its license and the
+# Space has an HF_TOKEN secret. Until then, effects fall back to AudioLDM2.
+stable_audio = None
+try:
+    from diffusers import StableAudioPipeline
+
+    stable_audio = StableAudioPipeline.from_pretrained(
+        "stabilityai/stable-audio-open-1.0", torch_dtype=torch.float16
+    ).to("cuda")
+    print("Stable Audio Open loaded", flush=True)
+except Exception as exc:
+    print(f"Stable Audio Open unavailable, using AudioLDM2 for effects: {type(exc).__name__}: {exc}", flush=True)
 
 music_processor = AutoProcessor.from_pretrained("facebook/musicgen-medium")
 music_model = MusicgenForConditionalGeneration.from_pretrained(
@@ -37,6 +52,17 @@ def _duration(prompt, kind, seconds, seed):
 @spaces.GPU(duration=_duration)
 def render(prompt, kind, seconds, seed):
     torch.manual_seed(seed)
+    if kind == "sfx" and stable_audio is not None:
+        generator = torch.Generator("cuda").manual_seed(seed)
+        audio = stable_audio(
+            prompt,
+            negative_prompt="low quality, distorted, noisy, clipping, music",
+            num_inference_steps=100,
+            audio_end_in_s=float(seconds),
+            num_waveforms_per_prompt=1,
+            generator=generator,
+        ).audios[0]  # (channels, samples)
+        return stable_audio.vae.sampling_rate, audio.float().cpu().numpy().T
     if kind == "sfx":
         generator = torch.Generator("cuda").manual_seed(seed)
         audio = sfx_pipe(
@@ -55,17 +81,43 @@ def render(prompt, kind, seconds, seed):
     return MUSIC_RATE, out[0, 0].float().cpu().numpy()
 
 
-def _normalize(audio):
+# Loudness targets (RMS, dBFS). Peak-normalizing every clip to full scale made
+# quiet effects and background noise blast at maximum volume.
+TARGET_RMS_DB = {"sfx": -20.0, "music": -18.0}
+PEAK_CEILING = 10 ** (-2.0 / 20)  # -2 dBFS
+
+
+def _master(audio, rate, kind):
+    """Remove rumble, level by loudness, cap the peak, and fade the edges."""
+    audio = np.asarray(audio, dtype=np.float32)
+    if audio.ndim == 1:
+        audio = audio[:, None]
+    audio = audio - audio.mean(axis=0, keepdims=True)
+    sos = butter(2, 30, btype="highpass", fs=rate, output="sos")
+    audio = sosfilt(sos, audio, axis=0).astype(np.float32)
+
+    # Measure loudness on the louder half of 50 ms windows, so silence and
+    # gaps don't make a sparse effect get boosted.
+    win = max(1, int(rate * 0.05))
+    mono = audio.mean(axis=1)
+    frames = mono[: len(mono) // win * win].reshape(-1, win) if len(mono) >= win else mono[None, :]
+    rms = np.sqrt((frames**2).mean(axis=1) + 1e-12)
+    active = np.sort(rms)[len(rms) // 2 :]
+    level = float(np.sqrt((active**2).mean())) if active.size else 0.0
+    if level > 0:
+        audio *= 10 ** (TARGET_RMS_DB[kind] / 20) / level
     peak = float(np.max(np.abs(audio))) if audio.size else 0.0
-    if peak > 0:
-        audio = audio / peak * 0.95
-    # 15 ms fades so clips start and stop without clicks.
-    n = min(len(audio) // 2, 240)
-    if n:
-        ramp = np.linspace(0, 1, n, dtype=np.float32)
-        audio[:n] *= ramp
-        audio[-n:] *= ramp[::-1]
-    return audio
+    if peak > PEAK_CEILING:
+        audio *= PEAK_CEILING / peak
+
+    # Short fade-in; a longer, natural fade-out (2 s for music).
+    fade_in = min(len(audio) // 4, int(rate * 0.03))
+    fade_out = min(len(audio) // 3, int(rate * (2.0 if kind == "music" else 0.3)))
+    if fade_in:
+        audio[:fade_in] *= np.linspace(0, 1, fade_in, dtype=np.float32)[:, None]
+    if fade_out:
+        audio[-fade_out:] *= (np.linspace(1, 0, fade_out, dtype=np.float32) ** 2)[:, None]
+    return audio if audio.shape[1] > 1 else audio[:, 0]
 
 
 def generate(prompt, kind, seconds, seed):
@@ -84,14 +136,14 @@ def generate(prompt, kind, seconds, seed):
 
         t0 = time.perf_counter()
         rate, audio = render(prompt, kind, seconds, seed)
-        audio = _normalize(np.asarray(audio, dtype=np.float32))
+        audio = _master(audio, rate, kind)
         meta = {
             "kind": kind,
             "prompt": prompt,
             "seconds": seconds,
             "seed": seed,
             "rate": rate,
-            "model": "AudioLDM2" if kind == "sfx" else "MusicGen Medium",
+            "model": ("Stable Audio Open" if stable_audio is not None else "AudioLDM2") if kind == "sfx" else "MusicGen Medium",
             "elapsed": round(time.perf_counter() - t0, 2),
         }
         return (rate, audio), meta, ""

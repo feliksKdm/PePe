@@ -3,3 +3,5 @@ transformers==4.44.2
 diffusers==0.30.3
 accelerate
 scipy
+torchsde
+sentencepiece

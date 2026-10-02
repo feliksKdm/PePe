@@ -18,7 +18,7 @@ const MAX_BATCH = 4
 const FAVORITES_KEY = 'image-studio:favorites'
 
 // A varied handful from the gallery for the empty Create view.
-const INSPIRATION = ['floating-city', 'fisherman', 'anime-shrine', 'ramen-alley', 'koi-pond', 'robot-watch']
+const INSPIRATION = ['z-neon-sign', 'floating-city', 'fisherman', 'anime-shrine', 'z-poster', 'robot-watch']
   .map((id) => GALLERY.find((g) => g.id === id))
   .filter(Boolean)
   .map((g) => ({ id: g.id, meta: g, thumb: galleryThumb(g.id) }))
@@ -253,6 +253,9 @@ const ImageStudio = () => {
   const [tab, setTab] = useState('create') // create | explore | mine
   const [prompt, setPrompt] = useState(PROMPT_IDEAS[0])
   const [model, setModel] = useState('dreamshaper')
+  // Models on probe Spaces are offered only once their Space says it serves them.
+  const [available, setAvailable] = useState(() => new Set(MODELS.filter((m) => !m.probe).map((m) => m.key)))
+  const modelTouched = useRef(false)
   const [style, setStyle] = useState('none')
   const [aspect, setAspect] = useState('1:1')
   const [seed, setSeed] = useState('') // '' = random
@@ -275,6 +278,16 @@ const ImageStudio = () => {
 
   useEffect(() => {
     wakeSpace(SPACE_URL)
+    for (const m of MODELS.filter((x) => x.probe)) {
+      callSpace(m.space, 'models', [])
+        .then(([keys]) => {
+          if (!Array.isArray(keys) || !keys.includes(m.key)) return
+          setAvailable((prev) => new Set(prev).add(m.key))
+          // Lead with the newest model unless the visitor already picked one.
+          if (m.key === 'zimage' && !modelTouched.current) setModel('zimage')
+        })
+        .catch(() => {})
+    }
     idbAll('images')
       .then((rows) => {
         const items = rows
@@ -349,7 +362,7 @@ const ImageStudio = () => {
     for (let i = 0; i < batch.length; i++) {
       const job = batch[i]
       try {
-        const [image, meta, apiError] = await callSpace(SPACE_URL, 'generate', [
+        const [image, meta, apiError] = await callSpace(selectedModel.space, 'generate', [
           text,
           model,
           style,
@@ -359,7 +372,7 @@ const ImageStudio = () => {
         if (apiError) throw new Error(apiError)
         if (!image?.url) throw new Error('No image came back.')
         // Through the same-origin proxy, so the blob can be stored and downloaded.
-        const res = await fetch(image.url.replace(/^https?:\/\/[^/]+/, SPACE_URL))
+        const res = await fetch(image.url.replace(/^https?:\/\/[^/]+/, selectedModel.space))
         if (!res.ok) throw new Error(`Couldn't fetch the image (${res.status}).`)
         const blob = new Blob([await res.arrayBuffer()], { type: 'image/webp' })
         const url = URL.createObjectURL(blob)
@@ -431,7 +444,7 @@ const ImageStudio = () => {
             </button>
           ))}
         </div>
-        <p className="font-mono text-[10px] text-neutral-500">SDXL LIGHTNING · ZEROGPU · SAFE-FOR-WORK FILTER</p>
+        <p className="font-mono text-[10px] text-neutral-500">Z-IMAGE · KREA 2 · SDXL LIGHTNING · ZEROGPU · SAFE-FOR-WORK FILTER</p>
       </div>
 
       {tab === 'create' && (
@@ -470,24 +483,41 @@ const ImageStudio = () => {
             <div>
               <Label>Model</Label>
               <div className="mt-2 grid grid-cols-3 gap-2">
-                {MODELS.map((m) => (
+                {MODELS.map((m) => {
+                  const ready = available.has(m.key)
+                  return (
                   <button
                     key={m.key}
-                    onClick={() => setModel(m.key)}
+                    onClick={() => {
+                      modelTouched.current = true
+                      setModel(m.key)
+                    }}
+                    disabled={!ready}
                     aria-pressed={model === m.key}
-                    className={`group cursor-pointer overflow-hidden rounded-xl border text-left transition-all ${
+                    title={ready ? m.name : `${m.name} — coming soon`}
+                    className={`group relative cursor-pointer overflow-hidden rounded-xl border text-left transition-all disabled:cursor-not-allowed ${
                       model === m.key ? 'border-lavender shadow-[0_0_22px_-10px_rgba(122,87,219,1)]' : 'border-white/10 hover:border-aqua/40'
                     }`}
                   >
-                    <div className="aspect-square overflow-hidden bg-white/5">
-                      <img src={m.cover} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="aspect-square overflow-hidden bg-gradient-to-br from-royal/60 to-aqua/30">
+                      <img
+                        src={m.cover}
+                        alt=""
+                        loading="lazy"
+                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                        className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${ready ? '' : 'opacity-40 grayscale'}`}
+                      />
                     </div>
+                    {!ready && (
+                      <span className="absolute top-2 right-2 rounded-full bg-black/70 px-1.5 py-0.5 font-mono text-[9px] text-sand">SOON</span>
+                    )}
                     <div className={`p-2 ${model === m.key ? 'bg-lavender/20' : 'bg-primary/60'}`}>
                       <p className="truncate text-[11px] font-medium">{m.name}</p>
                       <p className="font-mono text-[9px] text-neutral-400 uppercase">{m.tag}</p>
                     </div>
                   </button>
-                ))}
+                  )
+                })}
               </div>
               <p className="mt-2 text-[11px] text-neutral-500">{selectedModel.blurb}</p>
             </div>
@@ -678,7 +708,7 @@ const ImageStudio = () => {
               <Chip active={filterModel === 'all'} onClick={() => setFilterModel('all')}>
                 All models
               </Chip>
-              {MODELS.map((m) => (
+              {MODELS.filter((m) => GALLERY.some((g) => g.model === m.key)).map((m) => (
                 <Chip key={m.key} active={filterModel === m.key} onClick={() => setFilterModel(m.key)}>
                   {m.name}
                 </Chip>

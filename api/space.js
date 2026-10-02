@@ -14,6 +14,8 @@ const SPACES = {
   'sound-studio': { origin: 'https://felikskdm-sound-studio.hf.space', apis: ['generate'] },
   'sql-copilot': { origin: 'https://felikskdm-sql-copilot.hf.space', apis: ['ask'] },
   'video-studio': { origin: 'https://felikskdm-video-studio.hf.space', apis: ['generate'] },
+  'zimage-turbo': { origin: 'https://felikskdm-zimage-turbo.hf.space', apis: ['generate', 'models'] },
+  'krea-turbo': { origin: 'https://felikskdm-krea-turbo.hf.space', apis: ['generate', 'models'] },
 }
 
 // Only the endpoints the site's tools use: start a call, read its event
