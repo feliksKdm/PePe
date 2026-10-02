@@ -72,7 +72,21 @@ def _erase(image, mask):
 @spaces.GPU(duration=90)
 def _edit(image, instruction, seed):
     generator = torch.Generator("cuda").manual_seed(seed)
-    result = kontext(image=image, prompt=instruction, guidance_scale=2.5, num_inference_steps=24, generator=generator).images[0]
+    # Keep the photo's aspect ratio at ~1 MP (Kontext otherwise snaps to its own
+    # preferred resolutions, which can squash a portrait into a square).
+    scale = (1024 * 1024 / (image.width * image.height)) ** 0.5
+    width = max(256, int(image.width * scale) // 16 * 16)
+    height = max(256, int(image.height * scale) // 16 * 16)
+    result = kontext(
+        image=image.resize((width, height), Image.LANCZOS),
+        prompt=instruction,
+        width=width,
+        height=height,
+        _auto_resize=False,
+        guidance_scale=2.5,
+        num_inference_steps=24,
+        generator=generator,
+    ).images[0]
     return result, max(_nsfw(image), _nsfw(result))
 
 
