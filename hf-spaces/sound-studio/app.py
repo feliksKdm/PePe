@@ -146,7 +146,10 @@ def generate(prompt, kind, seconds, seed):
             "model": ("Stable Audio Open" if stable_audio is not None else "AudioLDM2") if kind == "sfx" else "MusicGen Medium",
             "elapsed": round(time.perf_counter() - t0, 2),
         }
-        return (rate, audio), meta, ""
+        # Hand Gradio int16: given float audio it rescales to full scale on
+        # export, which undoes the mastering above.
+        pcm = (np.clip(audio, -1.0, 1.0) * 32767).astype(np.int16)
+        return (rate, pcm), meta, ""
     except gr.Error as exc:
         return None, None, str(exc.message)
     except Exception as exc:
