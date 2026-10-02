@@ -12,6 +12,7 @@ const SPACES = {
   'kokoro-tts': 'https://felikskdm-kokoro-tts.hf.space',
   'image-studio': 'https://felikskdm-image-studio.hf.space',
   'transcriber': 'https://felikskdm-transcriber.hf.space',
+  'sound-studio': 'https://felikskdm-sound-studio.hf.space',
 }
 // Dev only: use HF_TOKEN, or the token saved by `hf auth login`, so local
 // testing runs on your ZeroGPU quota instead of the tiny anonymous one.

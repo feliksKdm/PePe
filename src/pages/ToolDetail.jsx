@@ -13,6 +13,7 @@ const CUSTOM_TOOLS = {
   'background-remover': lazy(() => import('../components/bgremover/BgRemover')),
   'data-lab': lazy(() => import('../components/datalab/DataLab')),
   'image-upscaler': lazy(() => import('../components/upscaler/Upscaler')),
+  'sound-studio': lazy(() => import('../components/soundstudio/SoundStudio')),
 }
 
 const ToolDetail = () => {

@@ -168,6 +168,21 @@ export const tools = [
     tags: ["Kokoro-82M", "Neural TTS", "ZeroGPU", "Streaming"],
   },
   {
+    slug: "sound-studio",
+    name: "Sound Studio",
+    emoji: "🎧",
+    status: "live",
+    runs: "gpu",
+    type: "custom",
+    category: "audio",
+    // Native UI (src/components/soundstudio) driving
+    // https://huggingface.co/spaces/feliksKdm/sound-studio (ZeroGPU)
+    tagline: "Describe a sound effect or a piece of music — and hear it.",
+    description:
+      "Text-to-audio in two modes: sound effects with AudioLDM2 (thunder, footsteps, spaceship engines, city ambience) and music with Meta's MusicGen (lo-fi beats, orchestral cues, synthwave), up to 20 seconds. Prompt ideas by category, waveform players, downloads, and a library of ready-made clips that play instantly. Runs on a ZeroGPU Space; the models are licensed for non-commercial use.",
+    tags: ["AudioLDM2", "MusicGen", "Text-to-Audio", "ZeroGPU"],
+  },
+  {
     slug: "video-transcriber",
     name: "Transcriber",
     emoji: "🎙️",

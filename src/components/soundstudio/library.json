@@ -1,0 +1,74 @@
+[
+ {
+  "id": "thunderstorm",
+  "kind": "sfx",
+  "prompt": "thunder rumbling over heavy rain",
+  "seconds": 8
+ },
+ {
+  "id": "ocean-waves",
+  "kind": "sfx",
+  "prompt": "waves crashing on a rocky shore, seagulls in the distance",
+  "seconds": 8
+ },
+ {
+  "id": "forest-dawn",
+  "kind": "sfx",
+  "prompt": "birds chirping in a forest at dawn",
+  "seconds": 8
+ },
+ {
+  "id": "spaceship",
+  "kind": "sfx",
+  "prompt": "spaceship engine humming, then a laser blast",
+  "seconds": 6
+ },
+ {
+  "id": "glass-shatter",
+  "kind": "sfx",
+  "prompt": "glass shattering on a stone floor",
+  "seconds": 4
+ },
+ {
+  "id": "cafe",
+  "kind": "sfx",
+  "prompt": "busy cafe with chatter and clinking cups",
+  "seconds": 8
+ },
+ {
+  "id": "lofi",
+  "kind": "music",
+  "prompt": "lo-fi hip hop beat with mellow piano and vinyl crackle, 80 bpm",
+  "seconds": 20
+ },
+ {
+  "id": "trailer",
+  "kind": "music",
+  "prompt": "epic orchestral trailer music with big drums and brass",
+  "seconds": 20
+ },
+ {
+  "id": "synthwave",
+  "kind": "music",
+  "prompt": "80s synthwave with driving bass, retro drums and a bright synth lead",
+  "seconds": 20
+ },
+ {
+  "id": "ambient",
+  "kind": "music",
+  "prompt": "ambient pads with soft rain, calm and dreamy",
+  "seconds": 20
+ },
+ {
+  "id": "jazz",
+  "kind": "music",
+  "prompt": "smooth jazz trio with upright bass, brushed drums and piano",
+  "seconds": 20
+ },
+ {
+  "id": "folk",
+  "kind": "music",
+  "prompt": "acoustic folk guitar with light percussion, warm and happy",
+  "seconds": 20
+ }
+]

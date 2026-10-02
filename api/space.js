@@ -11,6 +11,7 @@ const SPACES = {
   'kokoro-tts': { origin: 'https://felikskdm-kokoro-tts.hf.space', apis: ['speak'] },
   'image-studio': { origin: 'https://felikskdm-image-studio.hf.space', apis: ['generate', 'upscale'] },
   'transcriber': { origin: 'https://felikskdm-transcriber.hf.space', apis: ['transcribe'] },
+  'sound-studio': { origin: 'https://felikskdm-sound-studio.hf.space', apis: ['generate'] },
 }
 
 // Only the endpoints the site's tools use: start a call, read its event
