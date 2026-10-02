@@ -178,3 +178,17 @@ export async function exportCsv(sql) {
   await db.dropFile(out).catch(() => {})
   return bytes
 }
+
+/** Compact schema + a few sample rows for every table — what the SQL copilot sees. */
+export async function schemaForAI() {
+  const tables = await listTables()
+  const parts = []
+  for (const { name, rows } of tables) {
+    const desc = await runQuery(`DESCRIBE ${ident(name)}`)
+    const cols = desc.rows.map((r) => `${r[0]} ${r[1]}`).join(', ')
+    const sample = await runQuery(`SELECT * FROM ${ident(name)} LIMIT 3`)
+    const lines = sample.rows.map((r) => r.map((v) => (v === null ? 'NULL' : String(v).slice(0, 40))).join(' | '))
+    parts.push(`TABLE ${name} (${rows} rows): ${cols}\nSample rows:\n${lines.join('\n')}`)
+  }
+  return parts.join('\n\n')
+}

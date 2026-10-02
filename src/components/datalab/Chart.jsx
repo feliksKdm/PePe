@@ -217,7 +217,9 @@ const Chart = ({ type, points, xLabel, yLabel, xIsTime = false }) => {
       </svg>
       {tip && (
         <div
-          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-lg border border-white/10 bg-primary/95 px-3 py-2 text-xs shadow-xl"
+          className={`pointer-events-none absolute z-10 -translate-y-full rounded-lg border border-white/10 bg-primary/95 px-3 py-2 text-xs whitespace-nowrap shadow-xl ${
+            hover.x > W * 0.8 ? '-translate-x-full' : hover.x < W * 0.2 ? '' : '-translate-x-1/2'
+          }`}
           style={{ left: `${(hover.x / W) * 100}%`, top: hover.y - 10 }}
         >
           <p className="text-neutral-400">

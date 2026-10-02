@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Chart from './Chart.jsx'
-import { exportCsv, getDb, ident, listTables, loadBuffer, loadFile, profile, runQuery, tableName } from './duck.js'
+import { callSpace, wakeSpace } from '../../lib/gradio.js'
+import { exportCsv, getDb, ident, listTables, loadBuffer, loadFile, profile, runQuery, schemaForAI, tableName } from './duck.js'
+
+// Plain-English → SQL (Qwen2.5-Coder-7B on a ZeroGPU Space, via the same-origin proxy).
+const COPILOT_URL = '/hf/sql-copilot'
 
 // Synthetic sample: a year of orders for a small coffee chain, generated in DuckDB.
 const COFFEE_SQL = `
@@ -77,6 +81,21 @@ function suggestions(table, prof) {
   return out
 }
 
+/** Starter questions for the copilot, from the profile. */
+function questionIdeas(prof) {
+  if (!prof) return []
+  const nums = prof.columns.filter((c) => c.numeric && !/(^|_)id$/i.test(c.name) && !/[a-z]Id$/.test(c.name))
+  const cats = prof.columns.filter((c) => !c.numeric && !/DATE|TIME/i.test(c.type) && c.unique > 1 && c.unique <= 50)
+  const dates = prof.columns.filter((c) => /DATE|TIMESTAMP/i.test(c.type))
+  const out = []
+  if (cats[0] && nums.at(-1)) out.push(`Which ${cats[0].name} has the highest average ${nums.at(-1).name}?`)
+  if (dates[0] && nums.at(-1)) out.push(`How does total ${nums.at(-1).name} change by month?`)
+  if (cats[1]) out.push(`Show the share of rows for each ${cats[1].name} as a percentage`)
+  if (cats[0] && cats[1]) out.push(`Break down the row count by ${cats[0].name} and ${cats[1].name}`)
+  if (!out.length && nums[0]) out.push(`What is the distribution of ${nums[0].name}?`)
+  return out.slice(0, 3)
+}
+
 /** Pick a sensible default chart for a result. */
 function autoChart(result) {
   if (!result || result.columns.length < 2) return null
@@ -107,6 +126,9 @@ const DataLab = () => {
   const [error, setError] = useState('')
   const [hfName, setHfName] = useState('')
   const [dragOver, setDragOver] = useState(false)
+  const [question, setQuestion] = useState('')
+  const [asking, setAsking] = useState(false)
+  const [aiSql, setAiSql] = useState(false) // the editor holds copilot-written SQL
 
   const boot = useCallback(async () => {
     if (engine === 'ready') return true
@@ -198,6 +220,28 @@ const DataLab = () => {
     })
   }
 
+  const ask = async (q = question) => {
+    if (!q.trim() || asking) return
+    setAsking(true)
+    setError('')
+    try {
+      const schema = await schemaForAI()
+      const [generated, apiError] = await callSpace(COPILOT_URL, 'ask', [q.trim(), schema])
+      if (apiError) throw new Error(apiError)
+      setSql(generated)
+      setAiSql(true)
+      await run(generated)
+    } catch (err) {
+      setError(
+        /quota|exceeded|runs limit/i.test(err.message)
+          ? "The copilot's GPU allowance for today is used up — you can still write SQL by hand."
+          : `Copilot: ${err.message}`
+      )
+    } finally {
+      setAsking(false)
+    }
+  }
+
   const run = async (text = sql) => {
     if (!text.trim()) return
     setError('')
@@ -233,12 +277,14 @@ const DataLab = () => {
 
   // Warm the engine in the background so the first load feels instant.
   useEffect(() => {
+    wakeSpace(COPILOT_URL)
     const t = setTimeout(() => boot(), 600)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const sugg = useMemo(() => (active ? suggestions(active, prof) : []), [active, prof])
+  const askIdeas = useMemo(() => questionIdeas(prof), [prof])
   const points = useMemo(() => {
     if (!result || !chart) return []
     return result.rows.map((r) => ({ x: r[chart.x], y: r[chart.y] }))
@@ -447,10 +493,52 @@ const DataLab = () => {
 
             {tab === 'sql' && (
               <>
+                <div className="flex flex-col gap-3 rounded-2xl border border-lavender/30 bg-gradient-to-br from-lavender/10 to-aqua/5 p-4">
+                  <Label right={<span className="font-mono text-[10px] text-neutral-500">Qwen2.5-Coder-7B · sees schema + 3 sample rows only</span>}>
+                    ✨ Ask in plain English
+                  </Label>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      ask()
+                    }}
+                    className="flex gap-2"
+                  >
+                    <input
+                      value={question}
+                      onChange={(e) => setQuestion(e.target.value)}
+                      placeholder={`e.g. ${askIdeas[0] || 'Which category has the most rows?'}`}
+                      className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-aqua/50"
+                    />
+                    <button type="submit" disabled={asking || !question.trim()} className="cursor-pointer rounded-lg bg-radial from-lavender to-royal px-4 text-sm font-medium hover-animation disabled:opacity-50">
+                      {asking ? 'Thinking…' : 'Write SQL'}
+                    </button>
+                  </form>
+                  <div className="flex flex-wrap gap-1.5">
+                    {askIdeas.map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => {
+                          setQuestion(q)
+                          ask(q)
+                        }}
+                        disabled={asking}
+                        className="cursor-pointer rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-neutral-400 transition-colors hover:border-aqua/40 hover:text-white disabled:opacity-50"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-primary/60 p-4">
+                  {aiSql && <p className="text-[11px] text-sand">✨ Written by the copilot — check it before trusting the numbers.</p>}
                   <textarea
                     value={sql}
-                    onChange={(e) => setSql(e.target.value)}
+                    onChange={(e) => {
+                      setSql(e.target.value)
+                      setAiSql(false)
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                         e.preventDefault()
