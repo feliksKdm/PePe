@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { callSpace, uploadToSpace, wakeSpace } from '../../lib/gradio.js'
+import { idbAll } from '../../lib/idb.js'
 
 // Real-ESRGAN x4 lives on the Image Studio Space (/upscale). Uploads go
 // through the same-origin proxy; the (large) result is fetched straight from
@@ -42,7 +44,29 @@ const Upscaler = () => {
   const inputRef = useRef(null)
   const stageRef = useRef(null)
 
+  const [params] = useSearchParams()
+
   useEffect(() => wakeSpace(SPACE_URL), [])
+
+  // Arriving from Image Studio's "Upscale" button: ?from=gallery:<id> or mine:<id>.
+  useEffect(() => {
+    const from = params.get('from')
+    if (!from) return
+    const [kind, id] = from.split(':')
+    ;(async () => {
+      try {
+        if (kind === 'gallery' && /^[\w-]+$/.test(id)) {
+          const res = await fetch(`${import.meta.env.BASE_URL}image-studio/gallery/${id}.webp`)
+          if (res.ok) open(await res.blob(), `${id}.webp`)
+        } else if (kind === 'mine') {
+          const rec = (await idbAll('images')).find((r) => r.id === id)
+          if (rec) open(rec.blob, `image-studio-${rec.meta.seed}.webp`)
+        }
+      } catch {
+        /* fall back to the empty state */
+      }
+    })()
+  }, [params])
   useEffect(() => () => source?.url && URL.revokeObjectURL(source.url), [source])
   useEffect(() => () => result?.url && URL.revokeObjectURL(result.url), [result])
   useEffect(() => {

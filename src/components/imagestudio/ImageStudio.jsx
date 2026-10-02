@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { callSpace, wakeSpace } from '../../lib/gradio.js'
 import { idbAll, idbClear, idbDelete, idbPut } from '../../lib/idb.js'
 import {
@@ -169,6 +170,12 @@ const Lightbox = ({ item, onClose, onPrev, onNext, onRemix, onDelete, favorite, 
             ))}
           </dl>
           <div className="mt-auto flex flex-col gap-2">
+            <Link
+              to={`/tools/image-upscaler?from=${item.source}:${item.id}`}
+              className="w-full rounded-full border border-aqua/40 px-4 py-2.5 text-center text-sm text-aqua transition-colors hover:border-aqua hover:bg-aqua/10"
+            >
+              ⤢ Upscale ×4
+            </Link>
             <button
               onClick={() => onRemix(meta)}
               className="w-full cursor-pointer rounded-full bg-radial from-lavender to-royal px-4 py-2.5 text-sm font-medium hover-animation"
@@ -275,7 +282,7 @@ const ImageStudio = () => {
           .map((r) => {
             const url = URL.createObjectURL(r.blob)
             urlsRef.current.push(url)
-            return { ...r, full: url, thumb: url }
+            return { ...r, source: 'mine', full: url, thumb: url }
           })
         setMine(items)
       })
@@ -300,7 +307,7 @@ const ImageStudio = () => {
   }, [busy])
 
   const gallery = useMemo(
-    () => GALLERY.map((g) => ({ id: g.id, meta: g, full: galleryImage(g.id), thumb: galleryThumb(g.id) })),
+    () => GALLERY.map((g) => ({ id: g.id, source: 'gallery', meta: g, full: galleryImage(g.id), thumb: galleryThumb(g.id) })),
     []
   )
 
@@ -359,7 +366,7 @@ const ImageStudio = () => {
         urlsRef.current.push(url)
         const record = { id: job.id, blob, meta, createdAt: Date.now() }
         idbPut('images', record).catch(() => {})
-        const item = { ...record, full: url, thumb: url }
+        const item = { ...record, source: 'mine', full: url, thumb: url }
         setMine((prev) => [item, ...prev])
         setJobs((prev) => prev.map((j) => (j.id === job.id ? { ...j, status: 'done', item } : j)))
       } catch (err) {

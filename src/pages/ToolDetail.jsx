@@ -22,7 +22,11 @@ const ToolDetail = () => {
 
   if (!tool) return <Navigate to="/tools" replace />
 
-  const others = tools.filter((t) => t.slug !== slug).slice(0, 3)
+  // Same-category tools first, then the rest of the live ones.
+  const others = tools
+    .filter((t) => t.slug !== slug && t.status === 'live')
+    .sort((a, b) => (b.category === tool.category) - (a.category === tool.category))
+    .slice(0, 4)
 
   return (
     <section className="c-space min-h-screen pt-28 md:pt-36 pb-20">
