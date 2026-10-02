@@ -1,0 +1,9 @@
+torch
+diffusers>=0.40.0
+transformers>=4.51
+accelerate
+safetensors
+sentencepiece
+protobuf
+pillow
+simple-lama-inpainting

@@ -196,10 +196,10 @@ export const tools = [
     category: "audio",
     // Native UI (src/components/soundstudio) driving
     // https://huggingface.co/spaces/feliksKdm/sound-studio (ZeroGPU)
-    tagline: "Describe a sound effect or a piece of music — and hear it.",
+    tagline: "Sound effects and full songs with vocals — from a single sentence.",
     description:
-      "Text-to-audio in two modes: sound effects with Stability AI's Stable Audio Open in 44.1 kHz stereo (thunder, footsteps, spaceship engines, city ambience) and music with Meta's MusicGen (lo-fi beats, orchestral cues, synthwave), up to 20 seconds. Prompt ideas by category, waveform players, downloads, and a library of ready-made clips that play instantly. Runs on a ZeroGPU Space; the models are licensed for non-commercial use.",
-    tags: ["Stable Audio Open", "MusicGen", "Text-to-Audio", "ZeroGPU"],
+      "Two generators in one studio: sound effects with Stability AI's Stable Audio Open in 44.1 kHz stereo (thunder, footsteps, spaceship engines, city ambience), and complete songs with ACE-Step 1.5 — describe a song and it writes the lyrics, picks the tempo and key and sings it, or paste your own lyrics, up to two minutes. Audio is loudness-mastered without clipping. Waveform players, downloads, and a library of ready-made clips and songs that play instantly.",
+    tags: ["ACE-Step 1.5", "Stable Audio Open", "Songs", "ZeroGPU"],
   },
   {
     slug: "video-transcriber",
@@ -215,6 +215,21 @@ export const tools = [
     description:
       "Drop in a video or audio file (or record yourself) and get a timestamped transcript from Whisper large-v3-turbo on a ZeroGPU Space — 100+ languages, auto-detected. Audio is extracted and compressed in your browser before upload. Click any line to jump to that moment, search the transcript, and export TXT, SRT or VTT subtitles. Up to 15 minutes per file.",
     tags: ["Whisper Turbo", "Speech-to-Text", "Subtitles", "ZeroGPU"],
+  },
+  {
+    slug: "photo-editor",
+    name: "Photo Editor",
+    emoji: "🪄",
+    status: "live",
+    runs: "gpu",
+    type: "custom",
+    category: "image",
+    // Native UI (src/components/editor); AI tools on
+    // https://huggingface.co/spaces/feliksKdm/image-editor (+ image-studio /upscale)
+    tagline: "A photo editor with AI superpowers — edit by describing, erase anything.",
+    description:
+      "A full photo editor in the browser — adjustments, filter presets, crop and rotate, text and drawing, unlimited undo with a history panel — plus AI tools: describe a change and FLUX.1 Kontext applies it (\"make it winter\", \"turn it into a watercolor\"), paint over anything to erase it with LaMa, remove the background on your device, and upscale ×4 with Real-ESRGAN. Local edits never leave your device.",
+    tags: ["FLUX.1 Kontext", "LaMa", "Editor", "ZeroGPU"],
   },
   {
     slug: "background-remover",

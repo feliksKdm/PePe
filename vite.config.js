@@ -13,10 +13,12 @@ const SPACES = {
   'image-studio': 'https://felikskdm-image-studio.hf.space',
   'transcriber': 'https://felikskdm-transcriber.hf.space',
   'sound-studio': 'https://felikskdm-sound-studio.hf.space',
-  'sql-copilot': 'https://felikskdm-sql-copilot.hf.space',
+  'sql-copilot': 'https://felikskdm-transcriber.hf.space', // copilot lives on the transcriber Space
   'video-studio': 'https://felikskdm-video-studio.hf.space',
   'zimage-turbo': 'https://felikskdm-zimage-turbo.hf.space',
   'krea-turbo': 'https://felikskdm-krea-turbo.hf.space',
+  'image-editor': 'https://felikskdm-image-editor.hf.space',
+  'song-studio': 'https://felikskdm-song-studio.hf.space',
 }
 // Dev only: use HF_TOKEN, or the token saved by `hf auth login`, so local
 // testing runs on your ZeroGPU quota instead of the tiny anonymous one.

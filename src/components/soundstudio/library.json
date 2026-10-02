@@ -1,5 +1,53 @@
 [
  {
+  "id": "song-road-trip",
+  "kind": "music",
+  "prompt": "an upbeat indie pop song about a summer road trip",
+  "seconds": 40,
+  "instrumental": false,
+  "lyrics": "[Intro - Arpeggiated Electric Guitar]\n\n[Verse 1]\n落日照在海水中\n微风吹过夏天的晚风\n我想要和你在一起\n享受这个夏天的时光\n\n[Chorus]\n啦 啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n\n[Instrumental Break]\n\n[Verse 2]\n落日照在海水中\n微风吹过夏天的晚风\n我想要和你在一起\n享受这个夏天的时光\n\n[Chorus]\n啦 啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n啦啦啦啦啦啦啦啦啦\n\n[Outro - Arpeggiated Electric Guitar Fades Out]"
+ },
+ {
+  "id": "song-city-lights",
+  "kind": "music",
+  "prompt": "a dreamy synth-pop song about city lights at night, female vocals",
+  "seconds": 40,
+  "instrumental": false,
+  "lyrics": "[Intro - Synth Arpeggio]\n\n[Verse 1]\nNeon signs glow in the midnight air\nCity's alive, there's magic everywhere\nConcrete jungle, wild and free\nRhythm of the night, it's calling me\n\n[Chorus]\nUnder the city lights, we lose control\nFeel the beat in our hearts, let the moments flow\nDancing shadows in the street's embrace\nIn this rhythm, we find our place\n\n[Post-Chorus - Vocal Chops]\n(Oh-oh-oh-oh-oh-oh)\n(Oh-oh-oh-oh-oh-oh)\n(Oh-oh-oh-oh-oh-oh)\n(Oh-oh-oh-oh-oh-oh)\n\n[Verse 2]\nStars above, they can't shine this bright\nWhen you're by my side, everything feels right\nIn the chaos, there's a silent song\nAnd we knew we've been where we belong\n\n[Chorus]\nUnder the city lights, we lose control\nFeel the beat in our hearts, let the moments flow\nDancing shadows in the street's embrace\nIn this rhythm, we find our place\n\n[Post-Chorus - Vocal Chops]\n(Oh-oh-oh-oh-oh-oh)\n(Oh-oh-oh-oh-oh-oh)\n(Oh-oh-oh-oh-oh-oh)\n(Oh-oh-oh-oh-oh-oh)\n\n[Bridge]\nWhispers in the alleys, secrets undiscovered\nIn the heart of night where dreams are sold\nOne look from you and everything expands\nIn this city, we make our own plans\n\n[Chorus]\nUnder the city lights, we lose control\nFeel the beat in our hearts, let the moments flow\nDancing shadows in the street's embrace\nIn this rhythm, we find our place\n\n[Outro]\n(Oh-oh-oh-oh-oh-oh)\n(Oh-oh-oh-oh-oh-oh)\n(Oh-oh-oh-oh-oh-oh)\n(Oh-oh-oh-oh-oh-oh)\n[Synth arpeggio and pads fade out]"
+ },
+ {
+  "id": "song-rainy-cafe",
+  "kind": "music",
+  "prompt": "a jazzy cafe song with smooth male vocals about rainy mornings",
+  "seconds": 40,
+  "instrumental": false,
+  "lyrics": "[Intro - Brass Section Riff]\n\n[Verse 1]\nТеперь я знаю, что такое полюбить\nБродить и ехать на своём авто домой\nДавно я привыкал одно сидеть\nИ взрослый я уже, наверно, стал давно\n\n[Verse 2]\nЯ те города, в których любим летать\nМечтаю часто посетить со мной мечтой\nИ к солнцу, и к цветущим ласкам\nЯ постепенно становлюсь, как золой\n\n[Chorus]\nЯ всё-таки хотел пожить чуть-чуть\nНе гоняя в ночь и не бега白领а\nТеперь пойми, что жизнь не носит муть\nКогда любимая со мной пьяна\nКогда любимая со мной\nПьяна\n\n[Instrumental Break - Brass Section Riff]\n\n[Verse 3]\nМоя подруга, я тебя люблю\nИ благодарна за твою любовь\nТы знаешь, что я всё-таки могу\nИ главное — осознавать твою любовь\n\n[Verse 4]\nВсе뛰ли мы, закурили косик\nВот так живём, зачем же нам бежать?\nИ всё же даже в небе ясном\nЛетать возможно, если помнишь, как летать\n\n[Chorus]\nЯ всё-таки хотел пожить чуть-чуть\nНе гоняя в ночь и не бега白领а\nТеперь пойми, что жизнь не носит муть\nКогда любимая со мной пьяна\nКогда любимая со мной\nПьяна\n\n[Instrumental Break - Flute Solo]\n\n[Chorus]\nЯ всё-таки хотел пожить чуть-чуть\nНе гоняя в ночь и не бега白领а\nТеперь пойми, что жизнь не носит муть\nКогда любимая со мной пьяна\nКогда любимая со мной\nПьяна\n\n[Outro - Brass Section Riff]\n[Final chord hit]"
+ },
+ {
+  "id": "song-lofi-study",
+  "kind": "music",
+  "prompt": "a lo-fi hip hop beat to study to, mellow piano",
+  "seconds": 40,
+  "instrumental": true,
+  "lyrics": ""
+ },
+ {
+  "id": "song-trailer",
+  "kind": "music",
+  "prompt": "epic orchestral trailer music with big drums and choir",
+  "seconds": 40,
+  "instrumental": true,
+  "lyrics": ""
+ },
+ {
+  "id": "song-bossa",
+  "kind": "music",
+  "prompt": "a warm bossa nova with nylon guitar",
+  "seconds": 40,
+  "instrumental": true,
+  "lyrics": ""
+ },
+ {
   "id": "thunderstorm",
   "kind": "sfx",
   "prompt": "thunder rumbling over heavy rain",
@@ -58,41 +106,5 @@
   "kind": "sfx",
   "prompt": "fast typing on a mechanical keyboard",
   "seconds": 5
- },
- {
-  "id": "lofi",
-  "kind": "music",
-  "prompt": "lo-fi hip hop beat with mellow piano and vinyl crackle, 80 bpm",
-  "seconds": 20
- },
- {
-  "id": "trailer",
-  "kind": "music",
-  "prompt": "epic orchestral trailer music with big drums and brass",
-  "seconds": 20
- },
- {
-  "id": "synthwave",
-  "kind": "music",
-  "prompt": "80s synthwave with driving bass, retro drums and a bright synth lead",
-  "seconds": 20
- },
- {
-  "id": "ambient",
-  "kind": "music",
-  "prompt": "ambient pads with soft rain, calm and dreamy",
-  "seconds": 20
- },
- {
-  "id": "jazz",
-  "kind": "music",
-  "prompt": "smooth jazz trio with upright bass, brushed drums and piano",
-  "seconds": 20
- },
- {
-  "id": "folk",
-  "kind": "music",
-  "prompt": "acoustic folk guitar with light percussion, warm and happy",
-  "seconds": 20
  }
 ]

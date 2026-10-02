@@ -5,6 +5,9 @@ import LIBRARY from './library.json'
 // Same-origin proxy to https://felikskdm-sound-studio.hf.space (api/space.js).
 const SPACE_URL = '/hf/sound-studio'
 const SPACE_ORIGIN = 'https://felikskdm-sound-studio.hf.space'
+// Songs come from ACE-Step 1.5 on its own Space (writes lyrics, sings them).
+const SONG_URL = '/hf/song-studio'
+const SONG_ORIGIN = 'https://felikskdm-song-studio.hf.space'
 const MAX_PROMPT = 300
 
 const MODES = {
@@ -23,17 +26,17 @@ const MODES = {
     },
   },
   music: {
-    label: '🎵 Music',
-    model: 'MusicGen Medium',
-    min: 5,
-    max: 20,
-    default: 10,
-    placeholder: 'Describe a track: "lo-fi hip hop beat with mellow piano and vinyl crackle, 80 bpm"',
+    label: '🎤 Songs',
+    model: 'ACE-Step 1.5',
+    min: 20,
+    max: 120,
+    default: 45,
+    placeholder: 'Describe a song: "an upbeat indie pop song about a summer road trip, female vocals"',
     ideas: {
-      Chill: ['lo-fi hip hop beat with mellow piano and vinyl crackle', 'ambient pads with soft rain, calm and dreamy'],
-      Cinematic: ['epic orchestral trailer music with big drums and brass', 'tense suspense score with low strings'],
-      Electronic: ['80s synthwave with driving bass and retro drums', 'upbeat house track with a catchy synth lead'],
-      Acoustic: ['acoustic folk guitar, warm and happy', 'smooth jazz trio with upright bass and brushed drums'],
+      Pop: ['an upbeat indie pop song about a summer road trip', 'a dreamy synth-pop song about city lights at night, female vocals'],
+      Chill: ['a lo-fi hip hop beat to study to, mellow piano', 'a jazzy cafe song with smooth male vocals about rainy mornings'],
+      Epic: ['epic orchestral trailer music with big drums and choir', 'a powerful rock anthem about never giving up'],
+      Acoustic: ['an acoustic folk ballad about coming home', 'a warm bossa nova with nylon guitar'],
     },
   },
 }
@@ -167,11 +170,15 @@ const SoundStudio = () => {
   const [error, setError] = useState('')
   const [takes, setTakes] = useState([]) // { id, src, meta }
   const [filter, setFilter] = useState('all')
+  const [instrumental, setInstrumental] = useState(false)
+  const [lyrics, setLyrics] = useState('')
+  const [showLyrics, setShowLyrics] = useState(false)
   const urls = useRef([])
   const m = MODES[mode]
 
   useEffect(() => {
     wakeSpace(SPACE_URL)
+    wakeSpace(SONG_URL)
     const list = urls.current
     return () => list.forEach((u) => URL.revokeObjectURL(u))
   }, [])
@@ -196,11 +203,16 @@ const SoundStudio = () => {
     setElapsed(0)
     setError('')
     try {
-      const [audio, meta, apiError] = await callSpace(SPACE_URL, 'generate', [prompt.trim(), mode, seconds, -1])
+      const song = mode === 'music'
+      const [audio, rawMeta, apiError] = song
+        ? await callSpace(SONG_URL, 'song', [prompt.trim(), lyrics.trim(), instrumental, seconds, -1])
+        : await callSpace(SPACE_URL, 'generate', [prompt.trim(), mode, seconds, -1])
       if (apiError) throw new Error(apiError)
-      const direct = audio.url.replace(/^https?:\/\/[^/]+/, SPACE_ORIGIN)
+      const meta = song ? { ...rawMeta, kind: 'music', prompt: rawMeta.description } : rawMeta
+      const [proxy, origin] = song ? [SONG_URL, SONG_ORIGIN] : [SPACE_URL, SPACE_ORIGIN]
+      const direct = audio.url.replace(/^https?:\/\/[^/]+/, origin)
       let res = await fetch(direct).catch(() => null)
-      if (!res?.ok) res = await fetch(audio.url.replace(/^https?:\/\/[^/]+/, SPACE_URL))
+      if (!res?.ok) res = await fetch(audio.url.replace(/^https?:\/\/[^/]+/, proxy))
       const url = URL.createObjectURL(new Blob([await res.arrayBuffer()], { type: 'audio/mpeg' }))
       urls.current.push(url)
       setTakes((prev) => [{ id: Date.now(), src: url, meta }, ...prev].slice(0, 8))
@@ -275,6 +287,32 @@ const SoundStudio = () => {
             ))}
           </div>
 
+          {mode === 'music' && (
+            <div className="flex flex-col gap-2">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-300">
+                <input type="checkbox" checked={instrumental} onChange={(e) => setInstrumental(e.target.checked)} className="h-4 w-4 accent-lavender" />
+                Instrumental only (no vocals)
+              </label>
+              {!instrumental && (
+                <>
+                  <button onClick={() => setShowLyrics((v) => !v)} className="w-fit cursor-pointer text-xs text-neutral-400 hover:text-white">
+                    {showLyrics ? '▾' : '▸'} Write your own lyrics <span className="text-neutral-600">(optional — otherwise the AI writes them)</span>
+                  </button>
+                  {showLyrics && (
+                    <textarea
+                      value={lyrics}
+                      onChange={(e) => setLyrics(e.target.value)}
+                      rows={6}
+                      maxLength={3000}
+                      placeholder={'[Verse]\nWindows down, the summer air…\n\n[Chorus]\nWe keep on driving…'}
+                      className="w-full resize-y rounded-lg border border-white/10 bg-white/5 p-3 font-mono text-xs text-neutral-200 placeholder-neutral-600 outline-none focus:border-aqua/50"
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
           <label className="block">
             <span className="flex justify-between font-mono text-[11px] tracking-widest text-neutral-400 uppercase">
               Duration
@@ -296,7 +334,7 @@ const SoundStudio = () => {
             ) : mode === 'sfx' ? (
               '💥 Generate sound effect'
             ) : (
-              '🎵 Generate music'
+              '🎤 Generate song'
             )}
           </button>
           {busy && elapsed > 10 && <p className="-mt-3 text-center text-[11px] text-neutral-500">The first run can take up to a minute while the GPU wakes up.</p>}
@@ -319,7 +357,15 @@ const SoundStudio = () => {
                 <Waveform src={tk.src} autoPlay={i === 0} download={`${tk.meta.kind}-${tk.meta.seed}.mp3`} />
                 <p className="mt-2 font-mono text-[10px] text-neutral-500">
                   {tk.meta.model} · {tk.meta.seconds}s · seed {tk.meta.seed} · made in {tk.meta.elapsed}s
+                  {tk.meta.bpm ? ` · ${tk.meta.bpm} bpm` : ''}
+                  {tk.meta.key ? ` · ${tk.meta.key}` : ''}
                 </p>
+                {tk.meta.lyrics && tk.meta.lyrics !== '[Instrumental]' && (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-xs text-neutral-400 hover:text-white">Lyrics</summary>
+                    <pre className="mt-2 max-h-56 overflow-y-auto font-sans text-xs leading-relaxed whitespace-pre-wrap text-neutral-300">{tk.meta.lyrics}</pre>
+                  </details>
+                )}
               </div>
             ))
           ) : (
@@ -342,7 +388,7 @@ const SoundStudio = () => {
               {[
                 ['all', 'All'],
                 ['sfx', '💥 Effects'],
-                ['music', '🎵 Music'],
+                ['music', '🎤 Songs'],
               ].map(([k, l]) => (
                 <button
                   key={k}
@@ -359,13 +405,14 @@ const SoundStudio = () => {
               <div key={s.id} className="rounded-2xl border border-white/10 bg-primary/50 p-4">
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <p className="text-sm text-neutral-200">
-                    {s.kind === 'sfx' ? '💥' : '🎵'} {s.prompt}
+                    {s.kind === 'sfx' ? '💥' : s.instrumental ? '🎵' : '🎤'} {s.prompt}
                   </p>
                   <button
                     onClick={() => {
                       switchMode(s.kind)
                       setPrompt(s.prompt)
                       setSeconds(s.seconds)
+                      setInstrumental(Boolean(s.instrumental))
                       window.scrollTo({ top: 0, behavior: 'smooth' })
                     }}
                     className="shrink-0 cursor-pointer rounded-full border border-white/15 px-2.5 py-1 text-[11px] text-neutral-300 hover:border-aqua/50 hover:text-white"
@@ -374,6 +421,12 @@ const SoundStudio = () => {
                   </button>
                 </div>
                 <Waveform src={`${import.meta.env.BASE_URL}sound-studio/${s.id}.mp3`} download={`${s.id}.mp3`} />
+                {s.lyrics && (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-xs text-neutral-400 hover:text-white">Lyrics</summary>
+                    <pre className="mt-2 max-h-48 overflow-y-auto font-sans text-xs leading-relaxed whitespace-pre-wrap text-neutral-300">{s.lyrics}</pre>
+                  </details>
+                )}
               </div>
             ))}
           </div>
@@ -381,7 +434,7 @@ const SoundStudio = () => {
       )}
 
       <p className="font-mono text-[10px] leading-relaxed text-neutral-500">
-        STABLE AUDIO OPEN (STABILITY AI COMMUNITY LICENSE) · MUSICGEN MEDIUM BY META (CC BY-NC 4.0) · ZEROGPU · for demos and personal,
+        STABLE AUDIO OPEN (STABILITY AI COMMUNITY LICENSE) · ACE-STEP 1.5 (MIT) · ZEROGPU · for demos and personal,
         non-commercial use.
       </p>
     </div>

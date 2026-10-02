@@ -11,11 +11,14 @@ const SPACES = {
   'kokoro-tts': { origin: 'https://felikskdm-kokoro-tts.hf.space', apis: ['speak'] },
   'image-studio': { origin: 'https://felikskdm-image-studio.hf.space', apis: ['generate', 'upscale'] },
   'transcriber': { origin: 'https://felikskdm-transcriber.hf.space', apis: ['transcribe'] },
+  // The SQL copilot now lives on the transcriber Space (10-ZeroGPU-Space limit).
   'sound-studio': { origin: 'https://felikskdm-sound-studio.hf.space', apis: ['generate'] },
-  'sql-copilot': { origin: 'https://felikskdm-sql-copilot.hf.space', apis: ['ask'] },
+  'sql-copilot': { origin: 'https://felikskdm-transcriber.hf.space', apis: ['ask'] },
   'video-studio': { origin: 'https://felikskdm-video-studio.hf.space', apis: ['generate'] },
   'zimage-turbo': { origin: 'https://felikskdm-zimage-turbo.hf.space', apis: ['generate', 'models'] },
   'krea-turbo': { origin: 'https://felikskdm-krea-turbo.hf.space', apis: ['generate', 'models'] },
+  'image-editor': { origin: 'https://felikskdm-image-editor.hf.space', apis: ['edit', 'erase', 'models'] },
+  'song-studio': { origin: 'https://felikskdm-song-studio.hf.space', apis: ['song'] },
 }
 
 // Only the endpoints the site's tools use: start a call, read its event
@@ -30,7 +33,7 @@ function allowed(space, path) {
 // Best-effort per-IP rate limit on starting GPU calls, so one visitor can't
 // burn the whole day's ZeroGPU quota. In-memory, so it's per function instance
 // (Vercel reuses warm instances) — enough to stop casual abuse.
-const LIMITS = { 'video-studio:generate': 5, 'sound-studio:generate': 15 } // per hour
+const LIMITS = { 'video-studio:generate': 5, 'sound-studio:generate': 15, 'song-studio:song': 10, 'image-editor:edit': 20 } // per hour
 const DEFAULT_LIMIT = 120
 const WINDOW_MS = 60 * 60 * 1000
 const hits = new Map()

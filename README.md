@@ -16,7 +16,8 @@ Hugging Face ZeroGPU Spaces; lighter ones run entirely in the visitor's browser.
 | 🎨 **Image Studio** | Civitai-style text-to-image with 5 models: Z-Image Turbo, Krea 2 Turbo (once its license is accepted), DreamShaper XL Lightning, RealVisXL V4 Lightning and Animagine XL 4.0. 11 style presets, aspect ratios, batches of up to 4, a 34-image gallery with prompts and seeds you can remix, history in your browser, and a safety filter | ⚡ GPU · `image-studio`, `zimage-turbo`, `krea-turbo` |
 | 🎭 **Voice Lab** | Voice cloning and 10 voice/tone presets on Fun-CosyVoice3-0.5B; record or upload your own voice; 50 pre-rendered clips play instantly | ⚡ GPU · `voice-lab` |
 | 🔊 **Text to Speech** | 10 Kokoro-82M neural voices, streamed sentence by sentence, gap-free playback, WAV download | ⚡ GPU · `kokoro-tts` (in-browser fallback) |
-| 🎧 **Sound Studio** | Text-to-sound effects (Stable Audio Open once its license is accepted, otherwise AudioLDM2) and text-to-music (MusicGen Medium), loudness-mastered to about −18/−20 dBFS, with waveform players and a 12-clip library | ⚡ GPU · `sound-studio` |
+| 🎧 **Sound Studio** | Sound effects (Stable Audio Open, 44.1 kHz stereo) and complete songs with vocals (ACE-Step 1.5: writes the lyrics, picks tempo and key, sings, up to 2 min, or uses your lyrics). Loudness-mastered without clipping, with waveform players and a 16-clip library | ⚡ GPU · `sound-studio`, `song-studio` |
+| 🪄 **Photo Editor** | Browser editor (adjustments, 10 filter presets, crop and rotate, text, brush, history with undo/redo, before/after, PNG/JPEG/WebP export) plus AI tools: edit by instruction (FLUX.1 Kontext, once its license is accepted), magic eraser (LaMa), background removal (on device) and Real-ESRGAN upscale | ⚡ GPU · `image-editor`, `image-studio` |
 | 🎙️ **Transcriber** | Whisper large-v3-turbo transcription with timestamps synced to playback, search, and TXT/SRT/VTT export; audio is extracted and compressed in the browser | ⚡ GPU · `transcriber` |
 | ✂️ **Background Remover** | RMBG-1.4 / MODNet cut-outs with a before/after slider and custom backgrounds (color, gradient, blur, image) | 🔒 Browser (ONNX Runtime) |
 | 🔍 **Image Upscaler** | Real-ESRGAN ×2/×4 up to 4096px, with a comparison slider and ×3 zoom; any Image Studio image can be sent here in one click | ⚡ GPU · `image-studio` |
@@ -102,7 +103,9 @@ server reads the saved token automatically, or `HF_TOKEN` if it's set.
 
 ## Hugging Face Spaces
 
-All Spaces live under [`hf-spaces/`](hf-spaces) and run on **ZeroGPU**.
+All Spaces live under [`hf-spaces/`](hf-spaces) and run on **ZeroGPU**. Pro accounts can run at most
+**10 ZeroGPU Spaces**, so related models share a Space: the SQL copilot lives on `transcriber`, and the
+proxy still exposes it as `/hf/sql-copilot`. The old `sql-copilot` Space is paused on CPU.
 
 | Space | Models | API |
 |---|---|---|
@@ -112,8 +115,9 @@ All Spaces live under [`hf-spaces/`](hf-spaces) and run on **ZeroGPU**.
 | `sound-studio` | Stable Audio Open 1.0 (gated, optional), AudioLDM2, MusicGen Medium | `generate` |
 | `zimage-turbo` | Z-Image-Turbo (`MODEL_KEY=zimage`, source `turbo-models/`) | `generate`, `models` |
 | `krea-turbo` | Krea-2-Turbo (`MODEL_KEY=krea`, gated, source `turbo-models/`) | `generate`, `models` |
-| `transcriber` | Whisper large-v3-turbo | `transcribe` |
-| `sql-copilot` | Qwen2.5-Coder-7B-Instruct | `ask` |
+| `transcriber` | Whisper large-v3-turbo + Qwen2.5-Coder-7B-Instruct (the Data Lab SQL copilot) | `transcribe`, `ask` |
+| `song-studio` | ACE-Step 1.5 (fork of the official Space, source `song-studio/app.py`) | `song` |
+| `image-editor` | LaMa (big-lama), FLUX.1 Kontext [dev] (gated, optional) | `erase`, `edit`, `models` |
 | `video-studio` | Wan2.1-T2V-1.3B, Falconsai NSFW classifier | `generate` |
 
 Deploy or update one with:
@@ -126,7 +130,7 @@ hf spaces zero-gpu quota                     # remaining GPU time today
 
 The Voice Lab also needs `default_voice.wav`; see `hf-spaces/voice-lab/DEPLOY.md`.
 
-**Gated models** (Krea 2 Turbo, Stable Audio Open) need two things before they load: accept the license
+**Gated models** (Krea 2 Turbo, Stable Audio Open, FLUX.1 Kontext) need two things before they load: accept the license
 on the model's Hub page, and add an `HF_TOKEN` secret (a read token) to the Space. Then restart it:
 `hf spaces restart feliksKdm/krea-turbo`. Until then those Spaces report the model as unavailable,
 and the site shows it as "Soon" (or falls back to AudioLDM2 for effects).
@@ -150,6 +154,7 @@ src/
 │   ├── transcriber/     Transcriber (+ MP3 worker, subtitle formats)
 │   ├── bgremover/       Background Remover (+ ONNX worker)
 │   ├── upscaler/        Image Upscaler
+│   ├── editor/          Photo Editor (canvas ops + AI tools)
 │   ├── videostudio/     Video Generator (+ clips.json)
 │   └── datalab/         Data Lab (DuckDB engine, SVG charts)
 ├── lib/                 gradio.js, wav.js, idb.js
@@ -201,8 +206,11 @@ To change the site's content (projects, experience, tools), edit `src/constants/
 | Fun-CosyVoice3 | Alibaba FunAudioLLM | Apache-2.0 |
 | Whisper large-v3-turbo | OpenAI | MIT |
 | Stable Audio Open 1.0 | Stability AI | Stability AI Community License |
-| AudioLDM2 | CVSSP | CC BY-NC-SA 4.0 (non-commercial) |
-| MusicGen Medium | Meta | CC BY-NC 4.0 (non-commercial) |
+| ACE-Step 1.5 | ACE Studio & StepFun | MIT |
+| FLUX.1 Kontext [dev] | Black Forest Labs | FLUX.1 [dev] Non-Commercial License |
+| LaMa (big-lama) | Samsung AI | Apache-2.0 |
+| AudioLDM2 (fallback) | CVSSP | CC BY-NC-SA 4.0 (non-commercial) |
+| MusicGen Medium (legacy) | Meta | CC BY-NC 4.0 (non-commercial) |
 | RMBG-1.4 | BRIA AI | bria-rmbg-1.4 (non-commercial) |
 | MODNet | Ke et al. | Apache-2.0 |
 | Qwen2.5-Coder-7B-Instruct | Alibaba Qwen | Apache-2.0 |
