@@ -9,6 +9,8 @@
 const SPACES = {
   'voice-lab': { origin: 'https://felikskdm-voice-lab.hf.space', apis: ['preset', 'transcribe', 'clone'] },
   'kokoro-tts': { origin: 'https://felikskdm-kokoro-tts.hf.space', apis: ['speak'] },
+  'image-studio': { origin: 'https://felikskdm-image-studio.hf.space', apis: ['generate'] },
+  'transcriber': { origin: 'https://felikskdm-transcriber.hf.space', apis: ['transcribe'] },
 }
 
 // Only the endpoints the site's tools use: start a call, read its event

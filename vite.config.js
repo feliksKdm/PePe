@@ -10,6 +10,8 @@ import { join } from 'node:path'
 const SPACES = {
   'voice-lab': 'https://felikskdm-voice-lab.hf.space',
   'kokoro-tts': 'https://felikskdm-kokoro-tts.hf.space',
+  'image-studio': 'https://felikskdm-image-studio.hf.space',
+  'transcriber': 'https://felikskdm-transcriber.hf.space',
 }
 // Dev only: use HF_TOKEN, or the token saved by `hf auth login`, so local
 // testing runs on your ZeroGPU quota instead of the tiny anonymous one.

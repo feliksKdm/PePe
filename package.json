@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@breezystack/lamejs": "^1.2.7",
     "@emailjs/browser": "^4.4.1",
     "@gradio/client": "^2.0.0-dev.0",
+    "@huggingface/transformers": "^3.8.1",
     "@react-three/drei": "^10.7.5",
     "@react-three/fiber": "^9.3.0",
     "@tailwindcss/vite": "^4.1.11",

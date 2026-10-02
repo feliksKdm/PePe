@@ -128,6 +128,7 @@ export const tools = [
     emoji: "🖼️",
     status: "live",
     type: "gradio",
+    category: "image",
     src: "https://nick088-real-esrgan-pytorch.hf.space",
     tagline: "Upscale low-resolution images with Real-ESRGAN.",
     description:
@@ -140,6 +141,7 @@ export const tools = [
     emoji: "🎭",
     status: "live",
     type: "custom",
+    category: "audio",
     // Native UI (src/components/voicelab) driving the API of
     // https://huggingface.co/spaces/feliksKdm/voice-lab (ZeroGPU)
     tagline: "10 ready-made voices and tones, or clone your own — CosyVoice 3.",
@@ -150,15 +152,32 @@ export const tools = [
     tags: ["Voice Cloning", "10 Voice Presets", "CosyVoice 3", "ZeroGPU", "Multilingual"],
   },
   {
-    slug: "video-transcriber",
-    name: "Video Transcriber",
-    emoji: "🎙️",
-    status: "soon",
-    type: "soon",
-    tagline: "Turn any video or audio into accurate, timestamped text.",
+    slug: "image-studio",
+    name: "Image Studio",
+    emoji: "🎨",
+    status: "live",
+    type: "custom",
+    category: "image",
+    // Native UI (src/components/imagestudio) driving
+    // https://huggingface.co/spaces/feliksKdm/image-studio (ZeroGPU)
+    tagline: "Text-to-image with community checkpoints, styles and a remixable gallery.",
     description:
-      "Upload a video or audio file and get a clean transcript with timestamps — built on Whisper-class speech recognition. Currently in development.",
-    tags: ["Speech-to-Text", "Whisper", "Audio"],
+      "A small Civitai-style studio: pick a checkpoint (DreamShaper XL, RealVisXL V4 or Animagine XL 4.0), a style and an aspect ratio, and generate up to four 1024px images in seconds on a ZeroGPU Space. Browse the gallery, open any image to see its exact prompt, seed and settings, and remix it in one click. Your creations are kept in your browser only. A safety filter keeps everything safe for work.",
+    tags: ["SDXL Lightning", "Text-to-Image", "ZeroGPU", "Gallery"],
+  },
+  {
+    slug: "video-transcriber",
+    name: "Transcriber",
+    emoji: "🎙️",
+    status: "live",
+    type: "custom",
+    category: "audio",
+    // Native UI (src/components/transcriber) driving
+    // https://huggingface.co/spaces/feliksKdm/transcriber (ZeroGPU)
+    tagline: "Video or audio to accurate, timestamped text — with subtitles export.",
+    description:
+      "Drop in a video or audio file (or record yourself) and get a timestamped transcript from Whisper large-v3-turbo on a ZeroGPU Space — 100+ languages, auto-detected. Audio is extracted and compressed in your browser before upload. Click any line to jump to that moment, search the transcript, and export TXT, SRT or VTT subtitles. Up to 15 minutes per file.",
+    tags: ["Whisper Turbo", "Speech-to-Text", "Subtitles", "ZeroGPU"],
   },
   {
     slug: "text-to-speech",
@@ -166,6 +185,7 @@ export const tools = [
     emoji: "🔊",
     status: "live",
     type: "custom",
+    category: "audio",
     tagline: "10 natural neural voices, generated on a GPU in about a second.",
     description:
       "Type or paste up to 5,000 characters and hear them in one of 10 hand-picked neural voices — US and UK, male and female. Preview any voice in one tap, tune speed and volume, follow along with live highlighting and download the result as a WAV. Powered by Kokoro-82M on a Hugging Face ZeroGPU Space, streaming sentence by sentence so playback starts almost instantly — with an in-browser fallback if the server is unreachable. Free, and nothing is stored.",
@@ -177,6 +197,7 @@ export const tools = [
     emoji: "🎬",
     status: "soon",
     type: "soon",
+    category: "image",
     tagline: "Generate short video clips from text prompts.",
     description:
       "Describe a scene and generate a short clip. Exploring open video-diffusion models to make this practical in the browser. Currently in development.",

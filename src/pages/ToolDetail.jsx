@@ -8,6 +8,8 @@ import { tools } from '../constants'
 const CUSTOM_TOOLS = {
   'text-to-speech': lazy(() => import('../components/tts/TextToSpeech')),
   'voice-lab': lazy(() => import('../components/voicelab/VoiceLab')),
+  'image-studio': lazy(() => import('../components/imagestudio/ImageStudio')),
+  'video-transcriber': lazy(() => import('../components/transcriber/Transcriber')),
 }
 
 const ToolDetail = () => {
