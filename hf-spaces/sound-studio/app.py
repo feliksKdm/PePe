@@ -84,7 +84,8 @@ def render(prompt, kind, seconds, seed):
 # Loudness targets (RMS, dBFS). Peak-normalizing every clip to full scale made
 # quiet effects and background noise blast at maximum volume.
 TARGET_RMS_DB = {"sfx": -20.0, "music": -18.0}
-PEAK_CEILING = 10 ** (-2.0 / 20)  # -2 dBFS
+# -4 dBFS leaves headroom for MP3 overshoot on sharp transients (clicks, glass).
+PEAK_CEILING = 10 ** (-4.0 / 20)
 
 
 def _master(audio, rate, kind):

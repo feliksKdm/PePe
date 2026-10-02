@@ -1,4 +1,4 @@
-import{r as n,j as t}from"./index-EoU1ZdJq.js";import{w as me,u as he,c as fe}from"./gradio-Tqns7lzz.js";import{i as be,a as ge,c as we}from"./idb-DP_dOhXP.js";const h=(a,s=2)=>String(Math.floor(a)).padStart(s,"0");function j(a){const s=Math.max(0,a),l=Math.floor(s/3600),c=Math.floor(s%3600/60);return l?`${l}:${h(c)}:${h(s%60)}`:`${h(c)}:${h(s%60)}`}function $(a,s){const l=Math.max(0,a),c=Math.round(l%1*1e3),o=Math.floor(l)+(c===1e3?1:0);return`${h(o/3600)}:${h(o%3600/60)}:${h(o%60)}${s}${h(c%1e3,3)}`}function ve(a){return a.map((s,l)=>`${l+1}
+import{r as n,j as t}from"./index-RUdvHLVN.js";import{w as me,u as he,c as fe}from"./gradio-Tqns7lzz.js";import{i as be,a as ge,c as we}from"./idb-DP_dOhXP.js";const h=(a,s=2)=>String(Math.floor(a)).padStart(s,"0");function j(a){const s=Math.max(0,a),l=Math.floor(s/3600),c=Math.floor(s%3600/60);return l?`${l}:${h(c)}:${h(s%60)}`:`${h(c)}:${h(s%60)}`}function $(a,s){const l=Math.max(0,a),c=Math.round(l%1*1e3),o=Math.floor(l)+(c===1e3?1:0);return`${h(o/3600)}:${h(o%3600/60)}:${h(o%60)}${s}${h(c%1e3,3)}`}function ve(a){return a.map((s,l)=>`${l+1}
 ${$(s.start,",")} --> ${$(s.end,",")}
 ${s.text}
 `).join(`

@@ -33,5 +33,26 @@
   "aspect": "16:9",
   "width": 832,
   "height": 480
+ },
+ {
+  "id": "koi-pond",
+  "prompt": "koi fish swimming in a clear pond with floating lotus leaves, top-down view",
+  "aspect": "1:1",
+  "width": 624,
+  "height": 624
+ },
+ {
+  "id": "hot-air-balloons",
+  "prompt": "hot air balloons rising over a valley at sunrise, slow aerial shot",
+  "aspect": "16:9",
+  "width": 832,
+  "height": 480
+ },
+ {
+  "id": "candle",
+  "prompt": "close-up of a candle flame flickering in a dark room, cinematic",
+  "aspect": "9:16",
+  "width": 480,
+  "height": 832
  }
 ]

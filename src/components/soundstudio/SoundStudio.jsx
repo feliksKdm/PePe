@@ -10,15 +10,15 @@ const MAX_PROMPT = 300
 const MODES = {
   sfx: {
     label: '💥 Sound effects',
-    model: 'AudioLDM2',
+    model: 'Stable Audio Open',
     min: 1,
     max: 10,
     default: 5,
     placeholder: 'Describe a sound: "heavy wooden door creaking open in an old castle"',
     ideas: {
-      Nature: ['thunder rumbling over heavy rain', 'waves crashing on a rocky shore', 'birds chirping in a forest at dawn'],
+      Nature: ['thunder rumbling over heavy rain', 'crackling campfire at night with crickets', 'birds chirping in a forest at dawn'],
       'Sci-fi': ['spaceship engine humming, then a laser blast', 'robot powering up with servo whirs', 'futuristic door sliding open with a hiss'],
-      Foley: ['footsteps on gravel', 'glass shattering on a stone floor', 'a match being struck and lit'],
+      Foley: ['old wooden door creaking open slowly', 'glass shattering on a stone floor', 'fast typing on a mechanical keyboard'],
       City: ['busy cafe with chatter and clinking cups', 'subway train arriving at a station', 'car horn honking in traffic'],
     },
   },
@@ -381,7 +381,7 @@ const SoundStudio = () => {
       )}
 
       <p className="font-mono text-[10px] leading-relaxed text-neutral-500">
-        AUDIOLDM2 (CC BY-NC-SA 4.0) · MUSICGEN MEDIUM BY META (CC BY-NC 4.0) · ZEROGPU · for demos and personal,
+        STABLE AUDIO OPEN (STABILITY AI COMMUNITY LICENSE) · MUSICGEN MEDIUM BY META (CC BY-NC 4.0) · ZEROGPU · for demos and personal,
         non-commercial use.
       </p>
     </div>

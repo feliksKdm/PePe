@@ -151,10 +151,10 @@ export const tools = [
     category: "image",
     // Native UI (src/components/imagestudio) driving
     // https://huggingface.co/spaces/feliksKdm/image-studio (ZeroGPU)
-    tagline: "Text-to-image with community checkpoints, styles and a remixable gallery.",
+    tagline: "Text-to-image with Krea 2, Z-Image and community checkpoints — plus a remixable gallery.",
     description:
-      "A small Civitai-style studio: pick a checkpoint (DreamShaper XL, RealVisXL V4 or Animagine XL 4.0), a style and an aspect ratio, and generate up to four 1024px images in seconds on a ZeroGPU Space. Browse the gallery, open any image to see its exact prompt, seed and settings, and remix it in one click. Your creations are kept in your browser only. A safety filter keeps everything safe for work.",
-    tags: ["SDXL Lightning", "Text-to-Image", "ZeroGPU", "Gallery"],
+      "A small Civitai-style studio with five models — Krea 2 Turbo and Z-Image Turbo (state-of-the-art 8-step models, Z-Image even renders legible text) plus the community checkpoints DreamShaper XL, RealVisXL V4 and Animagine XL 4.0. Pick a style and an aspect ratio and generate up to four 1024px images in seconds on ZeroGPU Spaces. Browse the gallery, open any image to see its exact prompt, seed and settings, and remix it in one click. Your creations are kept in your browser only. A safety filter keeps everything safe for work.",
+    tags: ["Krea 2", "Z-Image", "SDXL Lightning", "ZeroGPU", "Gallery"],
   },
   {
     slug: "voice-lab",
@@ -198,8 +198,8 @@ export const tools = [
     // https://huggingface.co/spaces/feliksKdm/sound-studio (ZeroGPU)
     tagline: "Describe a sound effect or a piece of music — and hear it.",
     description:
-      "Text-to-audio in two modes: sound effects with AudioLDM2 (thunder, footsteps, spaceship engines, city ambience) and music with Meta's MusicGen (lo-fi beats, orchestral cues, synthwave), up to 20 seconds. Prompt ideas by category, waveform players, downloads, and a library of ready-made clips that play instantly. Runs on a ZeroGPU Space; the models are licensed for non-commercial use.",
-    tags: ["AudioLDM2", "MusicGen", "Text-to-Audio", "ZeroGPU"],
+      "Text-to-audio in two modes: sound effects with Stability AI's Stable Audio Open in 44.1 kHz stereo (thunder, footsteps, spaceship engines, city ambience) and music with Meta's MusicGen (lo-fi beats, orchestral cues, synthwave), up to 20 seconds. Prompt ideas by category, waveform players, downloads, and a library of ready-made clips that play instantly. Runs on a ZeroGPU Space; the models are licensed for non-commercial use.",
+    tags: ["Stable Audio Open", "MusicGen", "Text-to-Audio", "ZeroGPU"],
   },
   {
     slug: "video-transcriber",

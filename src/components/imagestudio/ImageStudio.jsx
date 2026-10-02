@@ -18,7 +18,7 @@ const MAX_BATCH = 4
 const FAVORITES_KEY = 'image-studio:favorites'
 
 // A varied handful from the gallery for the empty Create view.
-const INSPIRATION = ['z-neon-sign', 'floating-city', 'fisherman', 'anime-shrine', 'z-poster', 'robot-watch']
+const INSPIRATION = ['k-lighthouse-keeper', 'z-neon-sign', 'floating-city', 'k-astronaut-flowers', 'anime-shrine', 'z-poster']
   .map((id) => GALLERY.find((g) => g.id === id))
   .filter(Boolean)
   .map((g) => ({ id: g.id, meta: g, thumb: galleryThumb(g.id) }))

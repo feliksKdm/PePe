@@ -36,6 +36,30 @@
   "seconds": 8
  },
  {
+  "id": "campfire",
+  "kind": "sfx",
+  "prompt": "crackling campfire at night with crickets",
+  "seconds": 8
+ },
+ {
+  "id": "footsteps-gravel",
+  "kind": "sfx",
+  "prompt": "footsteps on gravel",
+  "seconds": 5
+ },
+ {
+  "id": "door-creak",
+  "kind": "sfx",
+  "prompt": "old wooden door creaking open slowly",
+  "seconds": 4
+ },
+ {
+  "id": "typing",
+  "kind": "sfx",
+  "prompt": "fast typing on a mechanical keyboard",
+  "seconds": 5
+ },
+ {
   "id": "lofi",
   "kind": "music",
   "prompt": "lo-fi hip hop beat with mellow piano and vinyl crackle, 80 bpm",
