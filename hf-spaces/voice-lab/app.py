@@ -23,6 +23,8 @@ import numpy as np
 import torch
 import torchaudio
 import random
+import functools
+import traceback
 import librosa
 import soundfile as sf
 from funasr import AutoModel
@@ -50,6 +52,10 @@ from cosyvoice.utils.file_utils import logging, load_wav
 from cosyvoice.utils.common import set_all_random_seed, instruct_list
 
 MODE_ZERO_SHOT = "zero_shot"
+# Clone from the reference audio alone, without its transcript. Slightly less
+# exact than zero-shot, but robust when the transcript is unknown or wrong — a
+# mismatched transcript makes CosyVoice truncate speech or fail outright.
+MODE_CROSS = "cross_lingual"
 MODE_INSTRUCT = "instruct"
 MAX_CHARS = 200
 
@@ -84,7 +90,7 @@ def instruct(text):
 PRESETS = {
     "feliks-natural": dict(
         emoji="🎙️", name="Feliks · Natural", base="feliks", pitch=0,
-        mode=MODE_ZERO_SHOT, style=None, speed=1.0,
+        mode=MODE_CROSS, style=None, speed=1.0,
         voice="My real voice", tone="Neutral, conversational",
         blurb="A straight clone of my own 10-second recording — no styling on top.",
         sample="Hi, I'm Feliks. This voice was cloned from a ten second clip — welcome to my lab.",
@@ -98,7 +104,7 @@ PRESETS = {
     ),
     "feliks-calm": dict(
         emoji="🌙", name="Feliks · Soft & Calm", base="feliks", pitch=0,
-        mode=MODE_INSTRUCT, style=instruct("请用非常温柔、轻声的语气说一句话。"), speed=0.9,
+        mode=MODE_INSTRUCT, style=instruct("Please say a sentence in a very soft voice."), speed=0.9,
         voice="My real voice", tone="Gentle, hushed",
         blurb="A quiet, gentle delivery — think late-night podcast.",
         sample="Take a slow breath in… and let it go. There's no rush tonight.",
@@ -112,7 +118,7 @@ PRESETS = {
     ),
     "deep-narrator": dict(
         emoji="🎬", name="Deep Narrator", base="feliks", pitch=-4,
-        mode=MODE_ZERO_SHOT, style=None, speed=0.9,
+        mode=MODE_CROSS, style=None, speed=0.9,
         voice="My voice, pitched down 4 semitones", tone="Low, cinematic",
         blurb="A deeper, slower variant of my voice for documentary-style narration.",
         sample="In a world of endless data, one small model learned to speak.",
@@ -155,6 +161,18 @@ PRESETS = {
 }
 DEFAULT_PRESET = "feliks-natural"
 SAMPLE_TEXTS = {p["sample"] for p in PRESETS.values()}
+
+# Tones a visitor can put on their own cloned voice (portfolio API).
+# Keys only — the API never accepts free-form instructions.
+STYLES = {
+    "natural": None,
+    "cheerful": instruct("请非常开心地说一句话。"),
+    "calm": instruct("Please say a sentence in a very soft voice."),
+    "fast": instruct("请用尽可能快地语速说一句话。"),
+    "sad": instruct("请非常伤心地说一句话。"),
+    "angry": instruct("请非常生气地说一句话。"),
+    "robot": instruct("你可以尝试用机器人的方式解答吗？"),
+}
 
 # Resolved at boot by build_preset_voices(): preset key → (wav path, transcript)
 PRESET_REFS = {}
@@ -504,7 +522,7 @@ def generate_audio(
             gr.Info("You are using Style control; please provide a reference recording first.")
             return (target_sr, default_data)
 
-    if mode_value == MODE_ZERO_SHOT:
+    if mode_value in (MODE_ZERO_SHOT, MODE_CROSS):
         if prompt_wav is None:
             gr.Warning("Reference audio is empty — pick a preset, or record/upload a short clip.")
             return (target_sr, default_data)
@@ -520,9 +538,22 @@ def generate_audio(
             gr.Warning("Please keep the reference clip within 10 seconds for best quality.")
             return (target_sr, default_data)
 
-        if prompt_text == "":
+        if mode_value == MODE_ZERO_SHOT and prompt_text == "":
             gr.Warning("Reference transcript is empty — wait for auto-detection or type it in.")
             return (target_sr, default_data)
+
+    if mode_value == MODE_CROSS:
+        logging.info("get cross_lingual inference request")
+        set_all_random_seed(seed)
+        speech_list = []
+        for i in cosyvoice.inference_cross_lingual(
+            "You are a helpful assistant.<|endofprompt|>" + tts_text,
+            postprocess(prompt_wav),
+            stream=False,
+            speed=speed,
+        ):
+            speech_list.append(i["tts_speech"])
+        return (target_sr, torch.concat(speech_list, dim=1).numpy().flatten())
 
     if mode_value == MODE_ZERO_SHOT:
         logging.info("get zero_shot inference request")
@@ -554,6 +585,93 @@ def generate_audio(
 
     gr.Warning("Invalid mode selection.")
     return (target_sr, default_data)
+
+
+# -----------------------------
+# Portfolio API — the site's native Voice Lab UI calls these instead of
+# embedding the Gradio page. Each returns (result, error_message): Gradio's
+# HTTP API doesn't reliably forward exception text, so errors travel as data.
+# -----------------------------
+def _api(fn):
+    @functools.wraps(fn)
+    def wrapper(*args):
+        try:
+            return fn(*args), ""
+        except gr.Error as exc:
+            print("API {} rejected: {}".format(fn.__name__, exc.message), flush=True)
+            return None, str(exc.message)
+        except Exception as exc:
+            traceback.print_exc()
+            return None, "Generation failed ({}). Please try again.".format(type(exc).__name__)
+    return wrapper
+
+
+def _check_text(text):
+    text = (text or "").strip()
+    if not text:
+        raise gr.Error("Type something for the voice to say first.")
+    if len(text) > MAX_CHARS:
+        raise gr.Error("Keep the text within {} characters.".format(MAX_CHARS))
+    return text
+
+
+def _check_seed(seed):
+    try:
+        return int(seed or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _check_speed(speed):
+    try:
+        return float(min(max(float(speed), 0.7), 1.3))
+    except (TypeError, ValueError):
+        return 1.0
+
+
+@_api
+def api_preset(text, preset, speed, seed):
+    text = _check_text(text)
+    if preset not in PRESET_REFS:
+        raise gr.Error("Unknown voice preset.")
+    p = PRESETS[preset]
+    path, transcript = PRESET_REFS[preset]
+    speed = _check_speed(speed if speed else p["speed"])
+    return generate_audio(text, p["mode"], transcript, path, None, p["style"] or "", _check_seed(seed), speed)
+
+
+@_api
+def api_transcribe(audio):
+    if not audio:
+        raise gr.Error("No audio received.")
+    return (prompt_wav_recognition(audio) or "").strip()
+
+
+@_api
+def api_clone(text, audio, transcript, style, speed, seed):
+    text = _check_text(text)
+    if not audio:
+        raise gr.Error("Upload or record a reference clip first.")
+    if style not in STYLES:
+        raise gr.Error("Unknown style.")
+    info = sf.info(audio)
+    if info.samplerate < 16000:
+        raise gr.Error("The reference clip's sample rate is too low (need at least 16 kHz).")
+    if info.frames / info.samplerate > 10.5:
+        raise gr.Error("Keep the reference clip within 10 seconds.")
+    transcript = (transcript or "").strip()
+    instruction = STYLES[style]
+    seed, speed = _check_seed(seed), _check_speed(speed)
+    if instruction:
+        return generate_audio(text, MODE_INSTRUCT, transcript, audio, None, instruction, seed, speed)
+    if transcript:
+        try:
+            return generate_audio(text, MODE_ZERO_SHOT, transcript, audio, None, "", seed, speed)
+        except Exception as exc:  # usually: transcript doesn't match the audio
+            # (ZeroGPU re-raises worker errors as gr.Error, so catch broadly;
+            # a quota error simply fails again below and is reported.)
+            print("zero-shot failed, retrying without transcript:", exc, flush=True)
+    return generate_audio(text, MODE_CROSS, "", audio, None, "", seed, speed)
 
 
 def on_mode_change(mode_value):
@@ -657,6 +775,7 @@ def main():
                     mode_radio = gr.Radio(
                         choices=[
                             ("Pure clone", MODE_ZERO_SHOT),
+                            ("Clone (audio only)", MODE_CROSS),
                             ("Clone + style", MODE_INSTRUCT),
                         ],
                         value=init["mode"],
@@ -683,6 +802,25 @@ def main():
                 audio_output = gr.Audio(label="Result", autoplay=True, streaming=False)
 
         gr.HTML(FOOTER_HTML)
+
+        # Headless endpoints for the portfolio site (see api_* above).
+        with gr.Group(visible=False):
+            a_text = gr.Textbox()
+            a_preset = gr.Textbox()
+            a_style = gr.Textbox()
+            a_transcript = gr.Textbox()
+            a_speed = gr.Number()
+            a_seed = gr.Number()
+            a_audio = gr.Audio(type="filepath")
+            a_out = gr.Audio(type="numpy", format="wav")
+            a_text_out = gr.Textbox()
+            a_err = gr.Textbox()
+            a_btn = gr.Button()
+        a_btn.click(api_preset, [a_text, a_preset, a_speed, a_seed], [a_out, a_err], api_name="preset")
+        a_btn.click(api_transcribe, [a_audio], [a_text_out, a_err], api_name="transcribe")
+        a_btn.click(
+            api_clone, [a_text, a_audio, a_transcript, a_style, a_speed, a_seed], [a_out, a_err], api_name="clone"
+        )
 
         # Wiring
         seed_button.click(generate_seed, inputs=[], outputs=seed)
@@ -729,7 +867,7 @@ def main():
             outputs=[audio_output],
         )
 
-    demo.queue(default_concurrency_limit=4).launch(allowed_paths=[VOICE_DIR])
+    demo.queue(default_concurrency_limit=4).launch(allowed_paths=[VOICE_DIR], show_error=True)
 
 
 if __name__ == "__main__":

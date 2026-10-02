@@ -1,17 +1,18 @@
+import { readEvents, wakeSpace as wakeGradioSpace } from '../../lib/gradio.js'
 import { shapeSilence } from './chunking.js'
 
 // Kokoro-82M on a ZeroGPU Space (hf-spaces/kokoro-tts). Speech renders far
 // faster than real time there, so playback starts almost immediately.
-export const SPACE_URL = 'https://felikskdm-kokoro-tts.hf.space'
+// Reached through the same-origin proxy (api/space.js on Vercel,
+// server.proxy in dev), which attaches the owner's HF token.
+export const SPACE_URL = '/hf/kokoro-tts'
 
 // Give up on the Space (and fall back to the in-browser model) if the first
 // chunk hasn't arrived by then — e.g. the Space is asleep or rebuilding.
 const FIRST_CHUNK_TIMEOUT = 15000
 
-/** Fire-and-forget request that wakes the Space before the visitor hits Speak. */
-export function wakeSpace() {
-  fetch(`${SPACE_URL}/gradio_api/info`).catch(() => {})
-}
+/** Wake the Space before the visitor hits Speak. */
+export const wakeSpace = () => wakeGradioSpace(SPACE_URL)
 
 function decodePcm(b64) {
   const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
@@ -19,31 +20,6 @@ function decodePcm(b64) {
   const out = new Float32Array(pcm.length)
   for (let i = 0; i < pcm.length; i++) out[i] = pcm[i] / 32768
   return out
-}
-
-// Gradio's /call API answers with Server-Sent Events: "generating" for each
-// yield, "complete" (repeating the last one), "error", and heartbeats.
-async function* readEvents(response) {
-  const reader = response.body.getReader()
-  const decoder = new TextDecoder()
-  let buffer = ''
-  for (;;) {
-    const { done, value } = await reader.read()
-    if (done) return
-    buffer += decoder.decode(value, { stream: true })
-    let split
-    while ((split = buffer.indexOf('\n\n')) >= 0) {
-      const block = buffer.slice(0, split)
-      buffer = buffer.slice(split + 2)
-      let event = 'message'
-      let data = ''
-      for (const line of block.split('\n')) {
-        if (line.startsWith('event:')) event = line.slice(6).trim()
-        else if (line.startsWith('data:')) data += line.slice(5).trim()
-      }
-      yield { event, data }
-    }
-  }
 }
 
 /**

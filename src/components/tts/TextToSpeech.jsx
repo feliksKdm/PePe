@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { chunkText } from './chunking'
 import { streamFromSpace, wakeSpace } from './remoteEngine'
+import { encodeWav } from '../../lib/wav.js'
 
 const SAMPLE_TEXT =
   "Hello! I'm the text to speech tool from Feliks's lab. Type anything here and I'll read it out loud with a neural voice — generated right in your browser. Nothing is uploaded anywhere."
@@ -25,34 +26,6 @@ const VOICES = [
 // Pre-rendered intros ("Hi, I'm Heart…") so previews play instantly, before
 // the model has even downloaded. Generated once with the same model + voices.
 const previewSrc = (id) => `${import.meta.env.BASE_URL}voices/${id}.mp3`
-
-function encodeWav(chunks, sampleRate) {
-  const length = chunks.reduce((n, c) => n + c.length, 0)
-  const buffer = new ArrayBuffer(44 + length * 2)
-  const view = new DataView(buffer)
-  const write = (offset, str) => [...str].forEach((ch, i) => view.setUint8(offset + i, ch.charCodeAt(0)))
-  write(0, 'RIFF')
-  view.setUint32(4, 36 + length * 2, true)
-  write(8, 'WAVE')
-  write(12, 'fmt ')
-  view.setUint32(16, 16, true)
-  view.setUint16(20, 1, true) // PCM
-  view.setUint16(22, 1, true) // mono
-  view.setUint32(24, sampleRate, true)
-  view.setUint32(28, sampleRate * 2, true)
-  view.setUint16(32, 2, true)
-  view.setUint16(34, 16, true)
-  write(36, 'data')
-  view.setUint32(40, length * 2, true)
-  let offset = 44
-  for (const chunk of chunks) {
-    for (let i = 0; i < chunk.length; i++, offset += 2) {
-      const s = Math.max(-1, Math.min(1, chunk[i]))
-      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true)
-    }
-  }
-  return new Blob([buffer], { type: 'audio/wav' })
-}
 
 const Slider = ({ label, value, min, max, step, onChange, format }) => (
   <label className="block">

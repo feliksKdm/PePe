@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/hf/:space/:path*", "destination": "/api/space?space=:space&path=:path*" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/space.js": { "maxDuration": 120 }
+  }
+}

@@ -7,6 +7,7 @@ import { tools } from '../constants'
 // Tools built directly into the site (code-split so they only load on demand)
 const CUSTOM_TOOLS = {
   'text-to-speech': lazy(() => import('../components/tts/TextToSpeech')),
+  'voice-lab': lazy(() => import('../components/voicelab/VoiceLab')),
 }
 
 const ToolDetail = () => {

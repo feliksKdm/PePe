@@ -139,10 +139,9 @@ export const tools = [
     name: "Voice Lab",
     emoji: "🎭",
     status: "live",
-    type: "gradio",
-    // Свой Space: https://huggingface.co/spaces/feliksKdm/voice-lab (ZeroGPU)
-    src: "https://feliksKdm-voice-lab.hf.space",
-    embedHeight: 1250,
+    type: "custom",
+    // Native UI (src/components/voicelab) driving the API of
+    // https://huggingface.co/spaces/feliksKdm/voice-lab (ZeroGPU)
     tagline: "10 ready-made voices and tones, or clone your own — CosyVoice 3.",
     description:
       "Zero-shot voice cloning and style control on Fun-CosyVoice3-0.5B (Apache-2.0). Pick from 10 preset voices and tones — my own voice natural, cheerful, calm or hyped, a deep narrator, a robot, a cartoon and more — type any text and hear it in one click, or drop in a 10-second clip to clone a different voice. Supports cross-lingual synthesis in 9 languages and natural-language style instructions. Runs on Hugging Face ZeroGPU.",
